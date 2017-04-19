@@ -83,6 +83,7 @@ void move(int dir, int speed)
 
     default:
     {
+      // Do  nothing
       break;
     }
     
