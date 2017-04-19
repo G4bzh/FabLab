@@ -6,88 +6,72 @@
 #define MOTOR2_EN 6
 
 
-#define FORWARD   0
+#define BRAKE     0
+#define FORWARD   1
+#define BACKWARD  2
+
+#define STRAIGHT  0
 #define LEFT      1
 #define RIGHT     2
-#define BRAKE     3
-#define BACKWARD  4
 
-void move(int dir, int speed)
+
+
+void move(int dir, int turn, int speed)
 {
-  switch(dir)
+  
+  if (dir == BRAKE)
   {
-    case FORWARD:
-    {
-      // Deux moteurs dans le meme sens
-      digitalWrite(MOTOR1_IN1, HIGH); 
-      digitalWrite(MOTOR1_IN2, LOW);
-      digitalWrite(MOTOR2_IN1, HIGH); 
-      digitalWrite(MOTOR2_IN2, LOW);
-      analogWrite(MOTOR1_EN, speed); 
-      analogWrite(MOTOR2_EN, speed);
-      
-      break;
-    }
-
-    case LEFT:
-    {
-      // Moteur 2 STOP, Moteur 1 GO
-      digitalWrite(MOTOR2_EN, HIGH);
-      digitalWrite(MOTOR2_IN1, LOW); 
-      digitalWrite(MOTOR2_IN2, LOW);
-      
-      digitalWrite(MOTOR1_IN1, HIGH); 
-      digitalWrite(MOTOR1_IN2, LOW);
-      analogWrite(MOTOR1_EN, speed); 
-      
-      break;
-    }
-
-    case RIGHT:
-    {
-      // Moteur 1 STOP, Moteur 2 GO
-      digitalWrite(MOTOR1_EN, HIGH);
-      digitalWrite(MOTOR1_IN1, LOW); 
-      digitalWrite(MOTOR1_IN2, LOW);
-      
-      digitalWrite(MOTOR2_IN1, HIGH); 
-      digitalWrite(MOTOR2_IN2, LOW);
-      analogWrite(MOTOR1_EN, speed); 
-      break;
-    }
-
-    case BRAKE:
-    {
-      digitalWrite(MOTOR1_EN, HIGH); 
-      digitalWrite(MOTOR2_EN, HIGH);
-      digitalWrite(MOTOR1_IN1, LOW); 
-      digitalWrite(MOTOR1_IN2, LOW);
-      digitalWrite(MOTOR2_IN1, LOW); 
-      digitalWrite(MOTOR2_IN2, LOW);
-
-      break;
-    }
-
-    case BACKWARD:
-    {
       // Deux moteurs dans le meme sens
       digitalWrite(MOTOR1_IN1, LOW); 
       digitalWrite(MOTOR1_IN2, HIGH);
       digitalWrite(MOTOR2_IN1, LOW); 
       digitalWrite(MOTOR2_IN2, HIGH);
       analogWrite(MOTOR1_EN, speed); 
-      analogWrite(MOTOR2_EN, speed); 
-
-      break;
-    }
-
-    default:
-    {
-      // Do  nothing
-      break;
-    }
-    
+      analogWrite(MOTOR2_EN, speed);
+      
+      return;
+  } 
+  
+  if (dir == FORWARD)
+  {
+      // Deux moteurs dans le meme sens+
+      digitalWrite(MOTOR1_IN1, HIGH); 
+      digitalWrite(MOTOR1_IN2, LOW);
+      digitalWrite(MOTOR2_IN1, HIGH); 
+      digitalWrite(MOTOR2_IN2, LOW);
+      analogWrite(MOTOR1_EN, speed); 
+      analogWrite(MOTOR2_EN, speed);
   }
+  
+  if (dir == BACKWARD)
+  {
+      // Deux moteurs dans le meme sens-
+      digitalWrite(MOTOR1_IN1, LOW); 
+      digitalWrite(MOTOR1_IN2, HIGH);
+      digitalWrite(MOTOR2_IN1, LOW); 
+      digitalWrite(MOTOR2_IN2, HIGH);
+      analogWrite(MOTOR1_EN, speed); 
+      analogWrite(MOTOR2_EN, speed);     
+  }
+  
+  if (turn == LEFT)
+  {
+      // Moteur 2 STOP, Moteur 1 GO
+      digitalWrite(MOTOR2_EN, HIGH);
+      digitalWrite(MOTOR2_IN1, LOW); 
+      digitalWrite(MOTOR2_IN2, LOW);
+    }
+
+  if (turn == RIGHT)
+    {
+      // Moteur 1 STOP, Moteur 2 GO
+      digitalWrite(MOTOR1_EN, HIGH);
+      digitalWrite(MOTOR1_IN1, LOW); 
+      digitalWrite(MOTOR1_IN2, LOW);
+    }
+
+ 
+  return;
   
 }
 
@@ -102,16 +86,18 @@ void setup() {
   pinMode(MOTOR2_IN2, OUTPUT);
 }
 
+
+
 void loop() {
   // put your main code here, to run repeatedly:
   
-  move(FORWARD,230);
+  move(FORWARD,STRAIGHT,230);
   delay(2000);
-  move(BRAKE,0);
+  move(BRAKE,STRAIGHT,0);
   delay(300);
-  move(RIGHT,150); 
+  move(FORWARD,RIGHT,190); 
   delay(2000);
-  move(BRAKE,0);
+  move(BRAKE,STRAIGHT,0);
   delay(300);
   
 }
