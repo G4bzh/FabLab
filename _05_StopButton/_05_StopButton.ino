@@ -78,7 +78,7 @@ void move(int dir, int turn, int speed)
 
 void buttonStop()
 {
-  stopNow = true;
+  stopNow = !stopNow;
   move(BRAKE,STRAIGHT,0);
   return;
 }
@@ -93,7 +93,8 @@ void setup() {
   pinMode(MOTOR2_IN1, OUTPUT);
   pinMode(MOTOR2_IN2, OUTPUT);
   pinMode(2, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(2), buttonStop, CHANGE);
+  // Int 0 -> pin 2, Int 1 -> pin 3
+  attachInterrupt(0, buttonStop, CHANGE);
 }
 
 
