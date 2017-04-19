@@ -14,7 +14,7 @@
 #define LEFT      1
 #define RIGHT     2
 
-
+bool stopNow = false;
 
 void move(int dir, int turn, int speed)
 {
@@ -76,6 +76,14 @@ void move(int dir, int turn, int speed)
 }
 
 
+void buttonStop()
+{
+  stopNow = true;
+  move(BRAKE,STRAIGHT,0);
+  return;
+}
+
+
 void setup() {
   // put your setup code here, to run once:
   pinMode(MOTOR1_EN, OUTPUT);
@@ -85,15 +93,15 @@ void setup() {
   pinMode(MOTOR2_IN1, OUTPUT);
   pinMode(MOTOR2_IN2, OUTPUT);
   pinMode(2, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(2), buttonStop, CHANGE);
 }
 
 
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  bool button = digitalRead(2);  
+  // put your main code here, to run repeatedly: 
 
-  if (button == LOW) 
+  if (!stopNow) 
   {
     move(FORWARD,STRAIGHT,230);
     delay(2000);
