@@ -1,2 +1,2 @@
 # arduinoComcom
-Arduino Lessons by COomcom35
+Arduino Lessons by Comcom35
