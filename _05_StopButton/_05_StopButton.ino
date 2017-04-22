@@ -19,15 +19,15 @@ bool stopNow = false;
 void move(int dir, int turn, int speed)
 {
   
-  if (dir == BRAKE)
+  if ( (dir == BRAKE) || stopNow )
   {
       // Deux moteurs dans le meme sens
       digitalWrite(MOTOR1_IN1, LOW); 
       digitalWrite(MOTOR1_IN2, HIGH);
       digitalWrite(MOTOR2_IN1, LOW); 
       digitalWrite(MOTOR2_IN2, HIGH);
-      analogWrite(MOTOR1_EN, speed); 
-      analogWrite(MOTOR2_EN, speed);
+      analogWrite(MOTOR1_EN, 0); 
+      analogWrite(MOTOR2_EN, 0);
       
       return;
   } 
@@ -78,9 +78,18 @@ void move(int dir, int turn, int speed)
 
 void buttonStop()
 {
+ static unsigned long last_interrupt_time = 0;
+ unsigned long interrupt_time = millis();
+ 
+ /* If interrupts come faster than 200ms, assume it's a bounce and ignore */
+ if (interrupt_time - last_interrupt_time > 200) 
+ {
   stopNow = !stopNow;
   move(BRAKE,STRAIGHT,0);
-  return;
+ }
+ 
+ last_interrupt_time = interrupt_time;
+ return;
 }
 
 
@@ -95,6 +104,7 @@ void setup() {
   pinMode(2, INPUT_PULLUP);
   // Int 0 -> pin 2, Int 1 -> pin 3
   attachInterrupt(0, buttonStop, CHANGE);
+ 
 }
 
 
@@ -102,16 +112,11 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly: 
 
-  if (!stopNow) 
+  if (!stopNow)
   {
-    move(FORWARD,STRAIGHT,230);
-    delay(2000);
-    move(BRAKE,STRAIGHT,0);
-    delay(300);
-    move(FORWARD,RIGHT,190); 
-    delay(2000);
-    move(BRAKE,STRAIGHT,0);
-    delay(300);
+     move(FORWARD,STRAIGHT,230);
+     delay(2000);
+     move(FORWARD,RIGHT,190); 
+     delay(2000);
   }
-  
 }
