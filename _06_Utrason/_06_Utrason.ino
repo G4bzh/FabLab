@@ -122,18 +122,32 @@ void loop() {
   // put your main code here, to run repeatedly: 
   
   long read_echo;
-  
-  // Generate a 10us pulse
-  digitalWrite(OUT_TRIG, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(OUT_TRIG, LOW);
-  
-  // Read echo pulse timing
-  read_echo = pulseIn(IN_ECHO, HIGH);
-  Serial.print("Distance : ");
-  Serial.print(read_echo / 58);
-  Serial.println("cm");
+  long dist;
 
-  delay(1000);
+  if (!stopNow)
+  {
+    
+    // Generate a 10us pulse
+    digitalWrite(OUT_TRIG, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(OUT_TRIG, LOW);
+    
+    // Read echo pulse timing
+    read_echo = pulseIn(IN_ECHO, HIGH);
+    dist = read_echo / 58;
+    Serial.print("Distance : ");
+    Serial.print(dist);
+    Serial.println("cm");
+
+    // Turn left backward if obstacle at 30cm or less 
+    if (dist > 30)
+    {
+      move(FORWARD,STRAIGHT,230);
+    }
+    else
+    {
+      move(BACKWARD,LEFT,190);
+    }
   
+  }
 }
