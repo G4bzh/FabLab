@@ -136,6 +136,25 @@ void BT_Button(int flag)
   
 }
 
+
+void BT_Josytick(byte cmd[8])
+{
+  int X = (cmd[1]-48)*100 + (cmd[2]-48)*10 + (cmd[3]-48);       // obtain the Int from the ASCII representation
+  int Y = (cmd[4]-48)*100 + (cmd[5]-48)*10 + (cmd[6]-48);
+  X = X - 200;                                                  // Offset to avoid
+  Y = Y - 200;                                                  // transmitting negative numbers
+
+  if(X<-100 || X>100 || Y<-100 || Y>100)     return;      // commmunication error
+ 
+  Serial.print("Joystick:  ");
+  Serial.print(X);  
+  Serial.print(", ");  
+  Serial.println(Y); 
+  
+  return;
+}
+
+
 void setup() {
   // put your setup code here, to run once:
 
@@ -188,7 +207,7 @@ void loop() {
        
        if(i==7)
        {
-          Serial.println("Joystick pressed !"); //getJoystickState(cmd);     // 6 Bytes  ex: < STX "200" "180" ETX >
+          BT_Josytick(cmd);     // 6 Bytes  ex: < STX "200" "180" ETX >
        }
        
      }
