@@ -19,7 +19,7 @@ typedef struct
 	SoftwareSerial* sserial;
 	int bauds;
 	uint8_t cmd[BT_CMD_LEN];
-	char buttons[BT_BUTTONS_LEN];
+	char buttons[BT_BUTTONS_LEN+1];
 	BT_b_handler b_handlers[BT_BUTTONS_LEN];
 	BT_p_handler p_handler;
 } BT_JOYSTICK;
@@ -30,6 +30,7 @@ void bt_delete(BT_JOYSTICK* j);
 void bt_setButtonHandler(BT_JOYSTICK* j, uint8_t b, BT_b_handler f);
 void bt_setPaddleHandler(BT_JOYSTICK* j, BT_p_handler f);
 void bt_run(BT_JOYSTICK* j);
+void bt_send(BT_JOYSTICK* j, char* d1, char* d2, char* d3);
 
 #endif
 

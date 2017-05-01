@@ -89,6 +89,7 @@ BT_JOYSTICK* bt_create(SoftwareSerial* sserial, int bauds)
 		j->buttons[i] = '0';
 		j->b_handlers[i] = NULL;
 	}
+	j->buttons[i] = '\0';
 	
 	for(i=0; i<BT_CMD_LEN; i++)
 	{
@@ -388,4 +389,42 @@ void bt_button(BT_JOYSTICK* j)
 
   
 	return;
+}
+
+
+/*
+ * Send back to joystick
+ *
+ */
+ 
+ 
+void bt_send(BT_JOYSTICK* j, char* d1, char* d2, char* d3)
+{
+	static long previousMillis = 0;                             
+	long currentMillis = millis();
+
+	if (j == NULL)
+	{
+		return;
+	}
+	
+	/* Tempo at 250ms */
+	if(currentMillis - previousMillis > 250) 
+	{ 
+
+		previousMillis = currentMillis; 
+
+		j->sserial->print((char)STX);
+		j->sserial->print(j->buttons);  
+		j->sserial->print((char)0x1);  
+		j->sserial->print(d1);          
+		j->sserial->print((char)0x4);  
+		j->sserial->print(d2); 
+		j->sserial->print((char)0x5);  
+		j->sserial->print(d3); 
+		j->sserial->print((char)ETX);  
+	}
+	
+	return;
+	
 }

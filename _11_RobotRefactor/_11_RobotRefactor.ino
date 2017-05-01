@@ -11,7 +11,8 @@
  * Global
  *
  */
- 
+
+int n=0;
  
 SoftwareSerial BT_serial(3, 4); 
 BT_JOYSTICK* bt_joystick;
@@ -27,10 +28,12 @@ void bt_button0_handler(uint8_t state)
 	if (state == BT_BUTTON_UP)
 	{
 		Serial.println("Button 0 released");
+		n++;
 	}
 	else
 	{
 		Serial.println("Button 0 pressed");
+		n++;
 	}
 
 	return;
@@ -77,7 +80,13 @@ void setup()
  
  void loop()
 {
+
+	char str[4];
+	
+	sprintf(str,"%d",n);
+	
 	bt_run(bt_joystick);
+	bt_send(bt_joystick,"B1",str,"times");
 	
 	return;
 }
