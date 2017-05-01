@@ -1,4 +1,35 @@
 /*
+ * RX(arduino) -> TX (BT)
+ * TX(arduino) -> RX (BT)
+ * 
+ * No need voltage divisor if HC05 for RX (BT)
+ * To configure: go in AT Mode by powering off BT, press button and hold during power on
+ * then serial communication can start a 38400bauds with both NL CR
+ * 
+ * We can then exchange with serial monitor with this code  :
+ * 
+ *   
+ *   
+ 
+          if (BTSERIAL.available())                  
+          {
+            
+            Serial.write(BTSERIAL.read());
+        
+          }
+         
+          if (Serial.available())
+          {
+            
+            BTSERIAL.write(Serial.read());
+        
+          }
+  
+ * 
+ */
+
+
+/*
  * Includes
  *
  */
