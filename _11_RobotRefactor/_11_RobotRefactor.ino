@@ -18,17 +18,10 @@ BT_JOYSTICK* bt_joystick;
 
 MOTOR* leftMotor;
 MOTOR* rightMotor;
-int dir=0;
+int dir = 0;
 int leftSpeed = 0;
 int rightSpeed = 0;
 
-
-/*
- * Macros
- *
- */
-
-#define DEG2RAD(__a) ((__a * 71) / 4068)
 
 
 /*
@@ -61,6 +54,7 @@ void bt_paddle_handler(int X, int Y)
 	
 	power = (int)(sqrt(X*X + Y*Y));
 	
+	/* Trigonometry : X is cosine */
 	if (X>0)
 	{
 		leftSpeed = power;
@@ -72,9 +66,11 @@ void bt_paddle_handler(int X, int Y)
 		leftSpeed = X+power;
 	}
 	
+	/* Map speed between 0 and 250 */
 	leftSpeed = (int)(constrain(leftSpeed,0,100)*2.5);
 	rightSpeed = (int)(constrain(rightSpeed,0,100)*2.5);
 	
+	/* Y tells direction */
 	if (Y > 0)
 	{
 		dir = MOTOR_FORWARD;
@@ -84,18 +80,11 @@ void bt_paddle_handler(int X, int Y)
 		dir = MOTOR_BACKWARD;
 	}		
 	
-	
+	/* No movements here */
 	if ( (Y==0) && (X==0) )
 	{
 		dir = MOTOR_BRAKE;
 	}
-	
-
-	
-	Serial.print("left:  ");
-	Serial.print(leftSpeed);  
-	Serial.print(", right: ");  
-	Serial.println(rightSpeed); 
 
 	
 	return;
