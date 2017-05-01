@@ -12,13 +12,23 @@
  *
  */
 
-int n=0;
- 
+
 SoftwareSerial BT_serial(3, 4); 
 BT_JOYSTICK* bt_joystick;
 
 MOTOR* leftMotor;
 MOTOR* rightMotor;
+int dir=0;
+int leftSpeed = 0;
+int rightSpeed = 0;
+
+
+/*
+ * Macros
+ *
+ */
+
+#define DEG2RAD(__a) ((__a * 71) / 4068)
 
 
 /*
@@ -35,7 +45,6 @@ void bt_button0_handler(uint8_t state)
 	else
 	{
 		Serial.println("Button 0 pressed");
-		n += 10;
 	}
 
 	return;
@@ -48,11 +57,47 @@ void bt_button0_handler(uint8_t state)
  
 void bt_paddle_handler(int X, int Y)
 {
-	Serial.print("Joystick:  ");
-	Serial.print(X);  
-	Serial.print(", ");  
-	Serial.println(Y); 
+	int power;
+	
+	power = (int)(sqrt(X*X + Y*Y));
+	
+	if (X>0)
+	{
+		leftSpeed = power;
+		rightSpeed = power-X;
+	}
+	else
+	{
+		rightSpeed = power;
+		leftSpeed = X+power;
+	}
+	
+	leftSpeed = (int)(constrain(leftSpeed,0,100)*2.5);
+	rightSpeed = (int)(constrain(rightSpeed,0,100)*2.5);
+	
+	if (Y > 0)
+	{
+		dir = MOTOR_FORWARD;
+	}
+	else
+	{
+		dir = MOTOR_BACKWARD;
+	}		
+	
+	
+	if ( (Y==0) && (X==0) )
+	{
+		dir = MOTOR_BRAKE;
+	}
+	
 
+	
+	Serial.print("left:  ");
+	Serial.print(leftSpeed);  
+	Serial.print(", right: ");  
+	Serial.println(rightSpeed); 
+
+	
 	return;
 }
 
@@ -86,13 +131,13 @@ void setup()
  void loop()
 {
 
-	char str[4];
-	sprintf(str,"%d",n);
-	
+
 	bt_run(bt_joystick);
-	bt_send(bt_joystick,"speed",str,"/250");
-	motor_setSpeed(leftMotor,n);
-	motor_run(leftMotor, MOTOR_FORWARD);
-	
+
+	motor_setSpeed(leftMotor,leftSpeed);
+	motor_run(leftMotor, dir);
+	motor_setSpeed(rightMotor,rightSpeed);
+	motor_run(rightMotor, dir);
+		
 	return;
 }
