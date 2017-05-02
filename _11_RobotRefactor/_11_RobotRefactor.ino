@@ -25,6 +25,7 @@ int rightSpeed = 0;
 
 ULTRASOUND* ultra;
 
+bool autoflag = false;
 
 
 /*
@@ -36,11 +37,11 @@ void bt_button0_handler(uint8_t state)
 {
 	if (state == BT_BUTTON_UP)
 	{
-		Serial.println("Button 0 released");
+		autoflag = false;
 	}
 	else
 	{
-		Serial.println("Button 0 pressed");
+		autoflag = true;
 	}
 
 	return;
@@ -54,6 +55,12 @@ void bt_button0_handler(uint8_t state)
 void bt_paddle_handler(int X, int Y)
 {
 	int power;
+	
+	/* No handling in autopilot mode */
+	if (autoflag)
+	{
+		return;
+	}
 	
 	power = (int)(sqrt(X*X + Y*Y));
 	
@@ -94,6 +101,35 @@ void bt_paddle_handler(int X, int Y)
 }
 
 
+/*
+ * Autopilot
+ *
+ */
+
+void autopilot(unsigned long dist)
+{
+	/* Be sure to be in autopilot mode */
+	if (!autoflag)
+	{
+		return;
+	}
+	
+	if (dist > 30)
+	{
+		dir = MOTOR_FORWARD;
+		leftSpeed = 222;
+		rightSpeed = 222;
+	}
+	else
+	{
+		dir = MOTOR_BRAKE;
+	}
+	
+	
+	return;
+}
+
+
 
 /*
  * Arduino Init
@@ -126,15 +162,21 @@ void setup()
 {
 
 
+	char str_dist[10];
+	unsigned long dist;
+	
+	dist = ultrasound_distance(ultra);
+	
 	bt_run(bt_joystick);
-
+	autopilot(dist);
+	
 	motor_setSpeed(leftMotor,leftSpeed);
 	motor_run(leftMotor, dir);
 	motor_setSpeed(rightMotor,rightSpeed);
 	motor_run(rightMotor, dir);
 	
-	Serial.print("Obstacle: ");
-	Serial.println(ultrasound_distance(ultra));
+	sprintf(str_dist,"%d",dist);
+	bt_send(bt_joystick,"Obst.",str_dist,"cm");
 		
 	return;
 }
