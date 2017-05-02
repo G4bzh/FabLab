@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include "BT.h"
 #include "Motor.h"
+#include "Ultrasound.h"
 
 /*
  * Global
@@ -21,6 +22,8 @@ MOTOR* rightMotor;
 int dir = 0;
 int leftSpeed = 0;
 int rightSpeed = 0;
+
+ULTRASOUND* ultra;
 
 
 
@@ -108,6 +111,8 @@ void setup()
 	rightMotor = motor_create(5,10,9);
 	leftMotor = motor_create(6,8,7);
 	
+	ultra = ultrasound_create(13,12);
+	
 	return;
 }
 
@@ -127,6 +132,9 @@ void setup()
 	motor_run(leftMotor, dir);
 	motor_setSpeed(rightMotor,rightSpeed);
 	motor_run(rightMotor, dir);
+	
+	Serial.print("Obstacle: ");
+	Serial.println(ultrasound_distance(ultra));
 		
 	return;
 }

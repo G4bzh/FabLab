@@ -28,6 +28,10 @@ MOTOR* motor_create(uint8_t en, uint8_t in1, uint8_t in2)
 	m->IN2 = in2;
 	m->speed = 0;
 	
+	pinMode(en, OUTPUT);
+	pinMode(in1, OUTPUT);
+	pinMode(in2, OUTPUT);
+	
 	return m;
 	
 }
