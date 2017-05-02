@@ -134,11 +134,35 @@ void autopilot(unsigned long dist)
 		leftSpeed = 0;
 		rightSpeed = 123;
 		
-		/* Take 250 maesures */
-		if (avoid > 250)
-		{
-			avoid = 0;
-		}
+		
+		/* We take 2N measures 
+		
+		// Go to initial position for measuring
+		for i=0 to N
+			ultrasound_distance(ultra); // tempo
+			turnLeft();
+		
+		// Find best angle
+		max_dist = ultrasound_distance(ultra);
+		cur_dist = 0;
+		best_measure = 0;
+		
+		for i=0 to 2N
+			turnRight();
+			cur_dist = ultrasound_distance(ultra);
+			
+			if ( cur_dist > max_dist )
+				max_dist = cur_dist;
+				best_measure = i;
+		
+		// Back to best measure
+		for i=0 to (2N-best_measure)
+			ultrasound_distance(ultra); // tempo
+			turnLeft();
+			
+		// Go
+		
+		*/
 		
 	}
 	
