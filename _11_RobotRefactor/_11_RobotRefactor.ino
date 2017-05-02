@@ -161,6 +161,9 @@ void autopilot(unsigned long dist)
 			turnLeft();
 			
 		// Go
+		dir = MOTOR_FORWARD;
+		leftSpeed = 222;
+		rightSpeed = 222;
 		
 		*/
 		
@@ -212,8 +215,8 @@ void setup()
 	autopilot(dist);
 	
 	motor_setSpeed(leftMotor,leftSpeed);
-	motor_run(leftMotor, dir);
 	motor_setSpeed(rightMotor,rightSpeed);
+	motor_run(leftMotor, dir);
 	motor_run(rightMotor, dir);
 	
 	sprintf(str_dist,"%d",dist);
