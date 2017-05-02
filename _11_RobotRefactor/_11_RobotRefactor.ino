@@ -26,7 +26,7 @@ int rightSpeed = 0;
 ULTRASOUND* ultra;
 
 bool autoflag = false;
-
+uint8_t avoid = 0;
 
 /*
  * BT Josystick button 0 handler
@@ -114,7 +114,7 @@ void autopilot(unsigned long dist)
 		return;
 	}
 	
-	if (dist > 30)
+	if ( (dist > 30) && (!avoid) )
 	{
 		dir = MOTOR_FORWARD;
 		leftSpeed = 222;
@@ -122,7 +122,24 @@ void autopilot(unsigned long dist)
 	}
 	else
 	{
-		dir = MOTOR_BRAKE;
+		unsigned long d;
+		
+		/* We are avoiding an obstacle */
+		avoid++;
+		
+
+		
+		/* Turn around to check obstacles */
+		dir = MOTOR_BACKWARD;
+		leftSpeed = 0;
+		rightSpeed = 123;
+		
+		/* Take 250 maesures */
+		if (avoid > 250)
+		{
+			avoid = 0;
+		}
+		
 	}
 	
 	
