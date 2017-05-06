@@ -26,7 +26,6 @@ int rightSpeed = 0;
 ULTRASOUND* ultra;
 
 bool autoflag = false;
-uint8_t avoid = 0;
 
 /*
  * BT Josystick button 0 handler
@@ -114,61 +113,66 @@ void autopilot(unsigned long dist)
 		return;
 	}
 	
-	if ( (dist > 30) && (!avoid) )
+	if  (dist < 30)
 	{
-		dir = MOTOR_FORWARD;
-		leftSpeed = 222;
-		rightSpeed = 222;
-	}
-	else
-	{
-		unsigned long d;
-		
-		/* We are avoiding an obstacle */
-		avoid++;
-		
-
+	        unsigned long cur_dist, max_dist;
+		uint8_t N,i,best_measure;
 		
 		/* Turn around to check obstacles */
 		dir = MOTOR_BACKWARD;
-		leftSpeed = 0;
-		rightSpeed = 123;
+		N = 100;
+
+		/* Init Position */
+		motor_setSpeed(leftMotor,0);
+		motor_setSpeed(rightMotor,150);
+
+		for(i=0; i<N; i++)
+		  {
+		    /* Tempo */
+		    ultrasound_distance(ultra);
+		    motor_run(leftMotor, dir);
+		    motor_run(rightMotor, dir);
+		  }
 		
-		
-		/* We take 2N measures 
-		
-		// Go to initial position for measuring
-		for i=0 to N
-			ultrasound_distance(ultra); // tempo
-			turnLeft();
-		
-		// Find best angle
+
 		max_dist = ultrasound_distance(ultra);
 		cur_dist = 0;
 		best_measure = 0;
+		motor_setSpeed(leftMotor,150);
+		motor_setSpeed(rightMotor,0);
+
+		/* We take 2N measures and keep best one */
+		for(i=0; i<2*N; i++)
+		  {
+		    motor_run(leftMotor, dir);
+		    motor_run(rightMotor, dir);
+
+		    cur_dist = ultrasound_distance(ultra);
+		    if ( cur_dist > max_dist )
+		      {
+			max_dist = cur_dist;
+			best_measure = i;
+		      }
+		  }
+
+		motor_setSpeed(leftMotor,0);
+		motor_setSpeed(rightMotor,150);
 		
-		for i=0 to 2N
-			turnRight();
-			cur_dist = ultrasound_distance(ultra);
-			
-			if ( cur_dist > max_dist )
-				max_dist = cur_dist;
-				best_measure = i;
-		
-		// Back to best measure
-		for i=0 to (2N-best_measure)
-			ultrasound_distance(ultra); // tempo
-			turnLeft();
-			
-		// Go
-		dir = MOTOR_FORWARD;
-		leftSpeed = 222;
-		rightSpeed = 222;
-		
-		*/
+		/* Back to the best measure */
+		for(i=0; i<(2*N-best_measure); i++)
+		  {
+		    /* Tempo */
+		    ultrasound_distance(ultra);
+		    motor_run(leftMotor, dir);
+		    motor_run(rightMotor, dir);
+		  }
 		
 	}
 	
+	/* Let's go */
+	dir = MOTOR_FORWARD;
+	leftSpeed = 222;
+	rightSpeed = 222;
 	
 	return;
 }
@@ -220,7 +224,7 @@ void setup()
 	motor_run(rightMotor, dir);
 	
 	sprintf(str_dist,"%d",dist);
-	bt_send(bt_joystick,"Obst.",str_dist,"cm");
+	bt_send(bt_joystick,(char*)"Obst.",str_dist,(char*)"cm");
 		
 	return;
 }
