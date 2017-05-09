@@ -26,6 +26,8 @@
           }
   
  * 
+ *
+ *     Change name: AT+NAME=Robot
  */
 
 

@@ -4,10 +4,18 @@
  */
 
 #include <stdlib.h>
+#include "TimerOne.h"
 #include "BT.h"
 #include "Motor.h"
 #include "Ultrasound.h"
 
+/*
+ * Constants
+ *
+ */
+ 
+#define OUT_BUZZER  A3
+ 
 /*
  * Global
  *
@@ -26,7 +34,43 @@ int rightSpeed = 0;
 ULTRASOUND* ultra;
 
 bool autoflag = false;
+bool buzzflag = false;
 
+
+/*
+ * Buzzer Interrupt
+ *
+ */
+
+void buzzInterrupt()
+{
+  static int freq = 500;
+  static char step = 1;
+
+  if (!buzzflag)
+  {
+	  noTone(OUT_BUZZER);
+	  return;
+  }
+  
+  freq += step;
+  
+  if (freq > 1000)
+  {
+    step = -1;
+  }
+
+  if (freq < 500)
+  {
+    step = 1;
+  }
+
+  tone(OUT_BUZZER, freq);
+
+  return;
+} 
+ 
+ 
 /*
  * BT Josystick button 0 handler
  *
@@ -41,6 +85,25 @@ void bt_button0_handler(uint8_t state)
 	else
 	{
 		autoflag = true;
+	}
+
+	return;
+}
+
+/*
+ * BT Josystick button 1 handler
+ *
+ */
+ 
+void bt_button1_handler(uint8_t state)
+{
+	if (state == BT_BUTTON_UP)
+	{
+		buzzflag = false;
+	}
+	else
+	{
+		buzzflag = true;
 	}
 
 	return;
@@ -186,10 +249,16 @@ void autopilot(unsigned long dist)
 
 void setup() 
 {
+	
+	pinMode(OUT_BUZZER,OUTPUT);
+	Timer1.initialize(1000);
+	Timer1.attachInterrupt(buzzInterrupt);
+  
 	Serial.begin(9600);
 
 	bt_joystick = bt_create(&BT_serial, 9600);
 	bt_setButtonHandler(bt_joystick,0,bt_button0_handler);
+	bt_setButtonHandler(bt_joystick,1,bt_button1_handler);
 	bt_setPaddleHandler(bt_joystick,bt_paddle_handler);
 	
 	rightMotor = motor_create(5,10,9);
