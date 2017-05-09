@@ -251,7 +251,7 @@ void setup()
 {
 	
 	pinMode(OUT_BUZZER,OUTPUT);
-	Timer1.initialize(1000);
+	Timer1.initialize(3000);
 	Timer1.attachInterrupt(buzzInterrupt);
   
 	Serial.begin(9600);
