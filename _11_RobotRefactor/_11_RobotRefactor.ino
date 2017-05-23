@@ -178,7 +178,7 @@ void autopilot(unsigned long dist)
 	
 	if  (dist < 30)
 	{
-	        unsigned long cur_dist, max_dist;
+	    unsigned long cur_dist, max_dist;
 		uint8_t N,i,best_measure;
 		
 		/* Turn around to check obstacles */
@@ -250,10 +250,12 @@ void autopilot(unsigned long dist)
 void setup() 
 {
 	
+	
 	pinMode(OUT_BUZZER,OUTPUT);
 	Timer1.initialize(3000);
 	Timer1.attachInterrupt(buzzInterrupt);
-  
+	
+	
 	Serial.begin(9600);
 
 	bt_joystick = bt_create(&BT_serial, 9600);
