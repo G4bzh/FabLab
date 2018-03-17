@@ -1,0 +1,242 @@
+Normal opertion (AT mcmd)
+
+
+     +-------+
+     | |-|_| |
+     +-------+
+RST -|       |- TX
+ADC -|       |- RX
+EN  -|       |- 5
+16  -|       |- 4
+14  -|       |- 0 
+12  -|       |- 2
+13  -|       |- 15
+VCC -+-------+- GND
+
+
+RST -> pull high
+EN -> pull HIGH
+VCC -> 3.3V
+GND -> GND
+GPIO15 -> pull DOWN
+GPIO2 -> pull HIGH
+GPIO0 -> pull HIGH
+TX -> TX Arduino
+RX -> RX Arduino
+
+Note: using a voltge divider between TX does not work ! But a level shifter with a 2N7000 and 2x10Ko resistor works !
+
+
+Arduino should put in Reset mode to be used as a cheap FTDI to USB adapter. RST should be connected to GND and GND to GND Power
+
+
+May be need to reboot the esp to have serial connection to OK (maybe a capacitor is needed between VCC/GND)
+
+
+Put esp in client mode
+
+  AT+CWMODE?
+  if returns 1 it s OK else :
+  
+  AT+CWMODE=1
+  AT+RST
+
+Now we can list SSIDs
+  AT+CWLAP
+
+	+CWLAP:(0,"FreeWifi",-81,"00:24:d4:53:5d:61",1,-4,0)
+	+CWLAP:(5,"FreeWifi_secure",-81,"00:24:d4:53:5d:62",1,-4,0)
+	+CWLAP:(3,"Freebox-A4D064",-83,"00:24:d4:53:5d:60",1,-4,0)
+	+CWLAP:(2,"SFR_E130",-85,"44:ce:7d:b9:e1:34",6,28,0)
+	+CWLAP:(0,"SFR WiFi FON",-88,"9a:ce:7d:b9:e1:35",6,26,0)
+	+CWLAP:(5,"SFR WiFi Mobile",-84,"9a:ce:7d:b9:e1:37",6,28,0)
+	+CWLAP:(0,"orange",-85,"4a:1e:78:6b:7e:ee",6,-2,0)
+	+CWLAP:(4,"Bbox-69912E8F",-69,"18:90:d8:bb:8e:30",6,18,0)
+	+CWLAP:(4,"Livebox-7EEE",-90,"18:1e:78:6b:7e:ee",6,-4,0)
+	+CWLAP:(2,"Abouhhh",-55,"e4:9e:12:12:6c:be",11,11,0)
+	+CWLAP:(0,"FreeWifi",-57,"e4:9e:12:12:6c:bf",11,10,0)
+	+CWLAP:(5,"FreeWifi_secure",-55,"e4:9e:12:12:6c:c0",11,10,0)
+
+
+AT+CWJAP="Abouhhh","<PASSWORD>"    
+
+OK
+
+
+
+
+
+FlashTool
+
+flash_download_tools_v3.6.4_0
+
+GPIO0 -> pull down
+
+
+Seems that pluggin arduino VIN to 5V makes flashing succeed more often ...
+
+launch flash tool start
+reset power when dots and underscore are displayed in batch windows
+ => We can short reset pin to ground with a jumper. Easier :)
+
+
+
+flash vendor:
+E0h : N/A
+flash devID:
+4016h
+QUAD;32Mbit
+crystal:
+26 Mhz
+
+
+chksum 0x50
+load 0x3ffe8314, len 264, room 8 
+tail 0
+chksum 0x4a
+csum 0x4a
+
+2nd boot version : 1.1
+  SPI Speed      : 40MHz
+  SPI Mode       : DIO
+  SPI Flash Size : 
+
+CONNECT BAUD: 115200
+============
+....._Uploading stub...
+Running stub...
+Stub running...
+Changing baud rate to 1152000
+Changed.
+-----------------------
+crc_efuse_4bit: 0
+crc_calc_4bit: 0
+48bit mac
+
+
+WORKS !!!!
+
+
+cf capture for settings
+
+BEWARE: pins are sensitive. I was blocked because of serial pin. I brideged TX through Breadboard by example.
+
+
+Arduino ide
+
+
+File->Pref-> additional boards : http://arduino.esp8266.com/stable/package_esp8266com_index.json 
+Tools->Board->board mamanger-> look for esp
+Install esp8266
+
+
+Restart IDE
+
+Beware: seems to break the board....
+
+
+
+Flash last AI Thinker firmware
+
+
+at
+
+
+OK
+AT+CWJAP?
+
+No AP
+
+OK
+at+CWLAP
+
++CWLAP:(3,"Freebox-A4D064",-91,"00:24:d4:53:5d:60",3,0,0)
++CWLAP:(0,"FreeWifi",-90,"00:24:d4:53:5d:61",3,0,0)
++CWLAP:(5,"FreeWifi_secure",-91,"00:24:d4:53:5d:62",3,0,0)
++CWLAP:(4,"Bbox-69912E8F",-74,"18:90:d8:bb:8e:30",6,20,0)
++CWLAP:(0,"orange",-93,"4a:1e:78:6b:7e:ee",6,0,0)
++CWLAP:(2,"SFR_E130",-92,"44:ce:7d:b9:e1:34",6,26,0)
++CWLAP:(0,"SFR WiFi FON",-76,"9a:ce:7d:b9:e1:35",6,28,0)
++CWLAP:(5,"SFR WiFi Mobile",-89,"9a:ce:7d:b9:e1:37",6,26,0)
++CWLAP:(4,"Livebox-7EEE",-91,"18:1e:78:6b:7e:ee",6,0,0)
++CWLAP:(2,"Abouhhh",-43,"e4:9e:12:12:6c:be",11,11,0)
++CWLAP:(0,"FreeWifi",-42,"e4:9e:12:12:6c:bf",11,11,0)
++CWLAP:(5,"FreeWifi_secure",-43,"e4:9e:12:12:6c:c0",11,11,0)
++CWLAP:(0,"FreeWifi_secure",-93,"42:03:81:d1:d4:53",11,-12,0)
++CWLAP:(2,"freebox_FENQLV",-92,"42:03:81:d1:d4:50",11,-11,0)
+
+
+at+CWJAP="Abouhhh","<PASSWORD>"
+
+WIFI CONNECTED
+WIFI GOT IP
+
+AT+CIFSR
+
++CIFSR:STAIP,"192.168.0.3"
++CIFSR:STAMAC,"5c:cf:7f:0b:94:34"
+
+
+AT+PING="8.8.8.8"
+
++16
+OK
+
+AT+CIPSTART="TCP","www.monip.org",80
+
+CONNECT
+OK
+
+# send 39 char to previous connection (<ENTER> is 2 char : \r\n)
+AT+CIPSEND=39
+> 
+GET / HTTP/1.0<ENTER>
+Host: www.monip.org<ENTER><ENTER>
+
+
+Recv 39 bytes
+
+SEND OK
+
++IPD,592:HTTP/1.1 200 OK
+Date: Sun, 11 Mar 2018 14:27:47 GMT
+Server: Apache/2.4.10 (Debian)
+Vary: Accept-Encoding
+Content-Length: 401
+Connection: close
+Content-Type: text/html; charset=UTF-8
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+
+<head>
+    <title>MonIP.org v1.0</title>
+    <META http-equiv="Content-type" content="text/html; charset=UTF-8">
+</head>
+<P ALIGN="center"><FONT size=8><BR>IP : 78.248.24.121<br></font><font size=3><i>cht35-1-78-248-24-121.fbx.proxad.net</i><br></font><font size=1><br><br>Pas de proxy détecté - No Proxy detected</font></html>
+CLOSED
+
+
+AT+CIPMUX=1
+AT+CIPSERVER=1,80
+
+<Go to http://[IP ESP]>
+
+0,CONNECT
+
++IPD,0,401:GET / HTTP/1.1
+Host: 192.168.0.3
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.146 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8
+Accept-Encoding: gzip, deflate
+Accept-Language: fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7
+
+
+<Close chrom tab>
+
+0,CLOSED
+
+
+
