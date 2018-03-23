@@ -240,3 +240,32 @@ Accept-Language: fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7
 
 
 
+Can use ESPExplorer in AT mode for AT communication: https://esp8266.ru/esplorer/#download
+
+NodeMCU
+=======
+
+
+
+Go to https://nodemcu-build.com/index.php
+Create a minimalist build with modules:
+- File
+- GPIO
+- Net
+- Node
+- Timer
+- UART
+- Wifi
+
+Get 2 builds
+- Integer
+- Float
+
+Dont need float computation so we can flash integer firmware
+ESPFlashtools => firmware at 0x00000
+
+Serial => 
+
+print(wifi.getmode())
+srv=net.createServer(net.TCP)  srv:listen(80,function(conn)      conn:on("receive",function(conn,payload)      print(payload)      conn:send("<h1> Hello, NodeMcu.</h1>")     end)  end)
+
