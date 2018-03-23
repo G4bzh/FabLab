@@ -264,8 +264,36 @@ Get 2 builds
 Dont need float computation so we can flash integer firmware
 ESPFlashtools => firmware at 0x00000
 
-Serial => 
+Serial via arduioa serial monitor => 
 
 print(wifi.getmode())
 srv=net.createServer(net.TCP)  srv:listen(80,function(conn)      conn:on("receive",function(conn,payload)      print(payload)      conn:send("<h1> Hello, NodeMcu.</h1>")     end)  end)
+
+
+OK. Need an editor and uploader
+
+https://github.com/andidittrich/NodeMCU-Tool
+DL node zip https://nodejs.org/en/download/
+Open prompt
+set PATH=%PATH%;<NODE DIRECTORY>
+npm install nodemcu-tool
+
+nodemcu-tool --version
+
+nodemcu-tool upload --port=COM12 init.lua
+
+
+
+wifi.setmode(wifi.STATION,true)
+wifi.sta.disconnect()
+
+station_cfg={}
+station_cfg.ssid="Backoffice"
+station_cfg.pwd="back4cyim"
+station_cfg.save=true
+wifi.sta.config(station_cfg)
+wifi.sta.connect()
+
+ip, mask, gw = wifi.sta.getip()
+print(ip)
 
