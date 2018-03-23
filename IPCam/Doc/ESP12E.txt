@@ -297,3 +297,21 @@ wifi.sta.connect()
 ip, mask, gw = wifi.sta.getip()
 print(ip)
 
+
+
+Micropython
+===========
+
+DL esp8266-20171101-v1.9.3.bin
+ESPFlashtools => firmware at 0x00000
+
+Serial via putty (!!) 
+
+>>> import network
+>>> wlan = network.WLAN(network.STA_IF) 
+>>> wlan.active(True)      
+>>> wlan.scan()
+[(b'Preview', b'\x00\xf6c\xaaeq', 1, -53, 3, 0), (b'Backoffice', b'\x00\xf6c\xaaep', 1, -54, 3, 0), (b'Jobbers02-ea70', b'\x90MJ\xfc\xeat', 1, -89, 4, 0), (b'SNFGE-WIFI', b'\xa0!\xb7\xac\xaa\xc5', 1, -85, 3, 0), (b'JFHOD2018', b'\x84\xd4~m\xe2%', 5, -78, 3, 0), (b'JFHOD2018', b'\x84\xd4~p\xa3\x05', 5, -66, 3, 0), (b'Bbox-38DE565C', b'd|4\xdf:|', 1, -90, 4, 0), (b'Yume', b'\x00\x1d\xaa~\x06h', 1, -88, 4, 0), (b'naxos', b'\x00\x19\xe8 0\xe1', 1, -89, 0, 0), (b'ZCGA_16037', b'\x00\x1b\x93\x01>\xa5', 8, -91, 2, 0), (b'JEPU2018', b'@\xe3\xd6WQ@', 9, -73, 0, 0), (b'Backoffice', b'\x00\xf6c\xa2\x120', 11, -62, 3, 0), (b'Preview', b'\x00\xf6c\xa2\x121', 11, -62, 3, 0), (b'JEPU2018', b"@\xe3\xd6W'\x00", 13, -73, 0, 0), (b'JFHOD2018', b'\xb4]P\xcd\x7f\xc5', 13, -81, 3, 0)]
+>>>
+
+
