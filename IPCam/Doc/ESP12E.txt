@@ -315,3 +315,6 @@ Serial via putty (!!)
 >>>
 
 
+
+
+>>> import upip
