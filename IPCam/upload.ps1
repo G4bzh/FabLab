@@ -1,4 +1,4 @@
-param($port = "COM12", $baud = 115200, $path, $retry = "3", $buffer=1, [Parameter(Mandatory=$True)]$file)
+param($port = "COM12", $baud = 115200, $path, $retry = "3", $buffer=1, [switch] $nocheck, [Parameter(Mandatory=$True)]$file)
 
 # Helper : flush serial
 function flushSerial
@@ -152,11 +152,19 @@ Try
 
         
         Write-Host "    [.] Upload finished"
-        Write-Host "    [.] Checking board integrity ..."
         
-        if ( (checkSerial -sp $serial -file $file) -eq 1 )
+        if ($nocheck.IsPresent)
         {
-            break
+           Write-Host "    [.] NoCheck enabled." 
+           break
+        }
+        else 
+        {         
+            Write-Host "    [.] Checking board integrity ..."
+            if ( (checkSerial -sp $serial -file $file) -eq 1 )
+            {
+                break
+            }
         }
 
         # Back to root if necessary
