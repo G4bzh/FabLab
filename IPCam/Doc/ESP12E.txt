@@ -315,3 +315,7 @@ Serial via putty (!!)
 >>>
 
 
+
+
+Pb de perte de bit via comm serie. Test du NodeMCU dev kit
+DL Driver https://github.com/nodemcu/nodemcu-devkit/blob/master/Drivers/CH341SER_WINDOWS.zip pour windows

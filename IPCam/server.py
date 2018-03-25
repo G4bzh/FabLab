@@ -9,7 +9,6 @@ except:
 CONTENT = b"""\
 HTTP/1.0 200 OK
 
-%s
 """
 
 NOTFOUND = b"""\
@@ -30,7 +29,12 @@ def handleFile(stream, path):
 
     try:
         f=open(path[1:])
-        stream.write(CONTENT % f.read())
+        stream.write(CONTENT)
+        while True:
+            data = f.read(1)
+            if not data:
+                break
+            stream.write(data)
         f.close()
     except:
         stream.write(NOTFOUND)

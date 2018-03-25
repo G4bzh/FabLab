@@ -1,4 +1,4 @@
-param($port = "COM12", $baud = 115200, $path, $retry = "3", $buffer=50, [Parameter(Mandatory=$True)]$file)
+param($port = "COM12", $baud = 115200, $path, $retry = "3", $buffer=1, [Parameter(Mandatory=$True)]$file)
 
 # Helper : flush serial
 function flushSerial
@@ -15,7 +15,8 @@ function checkSerial
     param( [Parameter(Mandatory=$True)]$sp, [Parameter(Mandatory=$True)]$file, $prefix="        " )
 
     # Check prompt
-    $sp.WriteLine( "`r" )
+    Write-Host "$($prefix)[.] Trying to get a prompt..."
+    $sp.Write( "`r" )
     start-sleep -m 200
     $prompt = $sp.ReadExisting()
     if ( $prompt.Substring($prompt.Length - 4) -ne ">>> " )
@@ -32,16 +33,17 @@ function checkSerial
     $digest = [System.BitConverter]::ToString( $sha1.ComputeHash([System.IO.File]::ReadAllBytes(( Resolve-Path $file ))))
     $digest = $digest -replace '-',''
 
-
     # Compute remote file SHA1
+    write-Host "$($prefix)[.] Computing SHA1 digest..."
+    Write-Host "$($prefix)$($prefix)[.] Local digest:  $($digest)"
     $basename = Split-Path -Path $file -Leaf -Resolve
-    $sp.WriteLine( "import uhashlib" + "`r")
-    flushSerial -sp $sp
-
-    $sp.WriteLine( "ubinascii.hexlify(uhashlib.sha1(open('" + $basename + "').read()).digest()).upper()" + "`r")
+    $sp.Write( "mysha1('" + $basename + "')" + "`r")
     start-sleep -m 200
     $sp.ReadLine() | out-null
+
+
     $rdigest = $sp.ReadLine().split("'")[1]
+    Write-Host "$($prefix)$($prefix)[.] Remote digest: $($rdigest)"
 
     if ( $rdigest -ne $digest )
     {
@@ -60,6 +62,8 @@ function checkSerial
 
 # Create serial object
 $serial = new-Object System.IO.Ports.SerialPort $port,$baud,None,8,one
+#$serial.Handshake = [System.IO.Ports.Handshake]"XOnXOff"
+
 Write-Host "[.] Connecting to $($port) at $($baud)"
 
 # Read source file and convert to base64
@@ -83,32 +87,35 @@ Try
 
         Write-Host "    [.] try $($r+1)/$($retry)..." 
 
-        $serial.WriteLine( "`r" )
-        $serial.WriteLine( "import os" + "`r" )
+        $serial.Write( "`r" )
+        $serial.Write( "import os" + "`r" )
         flushSerial -sp $serial
         
-        $serial.WriteLine( "import ubinascii" + "`r" )
+        $serial.Write( "import ubinascii" + "`r" )
+        flushSerial -sp $serial
+
+        $serial.Write( "from myhash import mysha1" + "`r" )
         flushSerial -sp $serial
 
         # Create and move to path
         if ($path)
         {
             Write-Host "    [.] Moving to $($path)"
-            $serial.WriteLine( "os.chdir('/')" + "`r" )
+            $serial.Write( "os.chdir('/')" + "`r" )
             flushSerial -sp $serial
             foreach ($dir in $path.split("/\"))
             {
                 if ($dir)
                 {
-                    $serial.WriteLine( "os.mkdir('" + $dir + "')" + "`r" )
+                    $serial.Write( "os.mkdir('" + $dir + "')" + "`r" )
                     flushSerial -sp $serial
-                    $serial.WriteLine( "os.chdir('" + $dir + "')" + "`r" )
+                    $serial.Write( "os.chdir('" + $dir + "')" + "`r" )
                     flushSerial -sp $serial
                 }
             }
         }
 
-        $serial.WriteLine( "f = open('" + $basename +"', 'wb')" + "`r" )
+        $serial.Write( "f = open('" + $basename +"', 'wb')" + "`r" )
         flushSerial -sp $serial
 
         # Char counter
@@ -130,8 +137,8 @@ Try
                 $s+="\x$($Bytes[$i+$j])"
             }
 
-            $serial.WriteLine( "f.write(b'" + $s +"')" + "`r" )
-            flushSerial -sp $serial
+            $serial.Write( "f.write(b'" + $s +"')" + "`r" )
+            flushSerial -sp $serial -d 10
 
             $i+=$offset
             $a = [int]($i*100/$Bytes.length)
@@ -140,7 +147,7 @@ Try
         }
         flushSerial -sp $serial
 
-        $serial.WriteLine( "f.close()" + "`r" )
+        $serial.Write( "f.close()" + "`r" )
         flushSerial -sp $serial
 
         
@@ -155,7 +162,7 @@ Try
         # Back to root if necessary
         if ($path)
         {
-            $serial.WriteLine( "os.chdir('/')" + "`r" )
+            $serial.Write( "os.chdir('/')" + "`r" )
             flushSerial -sp $serial
         }
 
@@ -165,7 +172,7 @@ Try
     # Back to root if necessary
     if ($path)
     {
-        $serial.WriteLine( "os.chdir('/')" + "`r" )
+        $serial.Write( "os.chdir('/')" + "`r" )
         flushSerial -sp $serial
     }
 
