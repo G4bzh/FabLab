@@ -6,7 +6,7 @@ def do_connect():
 
     if not wlan.isconnected():
         print('connecting to network...')
-        wlan.connect('Backoffice', 'back4cyim')
+        wlan.connect('Abouhhh', '<>')
         while not wlan.isconnected():
             pass
     print('network config:', wlan.ifconfig())
