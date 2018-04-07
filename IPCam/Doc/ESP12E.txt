@@ -8,7 +8,7 @@ RST -|       |- TX
 ADC -|       |- RX
 EN  -|       |- 5
 16  -|       |- 4
-14  -|       |- 0 
+14  -|       |- 0
 12  -|       |- 2
 13  -|       |- 15
 VCC -+-------+- GND
@@ -37,7 +37,7 @@ Put esp in client mode
 
   AT+CWMODE?
   if returns 1 it s OK else :
-  
+
   AT+CWMODE=1
   AT+RST
 
@@ -58,7 +58,7 @@ Now we can list SSIDs
 	+CWLAP:(5,"FreeWifi_secure",-55,"e4:9e:12:12:6c:c0",11,10,0)
 
 
-AT+CWJAP="Abouhhh","<PASSWORD>"    
+AT+CWJAP="Abouhhh","<PASSWORD>"
 
 OK
 
@@ -91,7 +91,7 @@ crystal:
 
 
 chksum 0x50
-load 0x3ffe8314, len 264, room 8 
+load 0x3ffe8314, len 264, room 8
 tail 0
 chksum 0x4a
 csum 0x4a
@@ -99,7 +99,7 @@ csum 0x4a
 2nd boot version : 1.1
   SPI Speed      : 40MHz
   SPI Mode       : DIO
-  SPI Flash Size : 
+  SPI Flash Size :
 
 CONNECT BAUD: 115200
 ============
@@ -125,7 +125,7 @@ BEWARE: pins are sensitive. I was blocked because of serial pin. I brideged TX t
 Arduino ide
 
 
-File->Pref-> additional boards : http://arduino.esp8266.com/stable/package_esp8266com_index.json 
+File->Pref-> additional boards : http://arduino.esp8266.com/stable/package_esp8266com_index.json
 Tools->Board->board mamanger-> look for esp
 Install esp8266
 
@@ -189,7 +189,7 @@ OK
 
 # send 39 char to previous connection (<ENTER> is 2 char : \r\n)
 AT+CIPSEND=39
-> 
+>
 GET / HTTP/1.0<ENTER>
 Host: www.monip.org<ENTER><ENTER>
 
@@ -242,6 +242,10 @@ Accept-Language: fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7
 
 Can use ESPExplorer in AT mode for AT communication: https://esp8266.ru/esplorer/#download
 
+AT+IPR=9600
+
+Speed set to 9600 : less garbage !
+
 NodeMCU
 =======
 
@@ -264,7 +268,7 @@ Get 2 builds
 Dont need float computation so we can flash integer firmware
 ESPFlashtools => firmware at 0x00000
 
-Serial via arduioa serial monitor => 
+Serial via arduioa serial monitor =>
 
 print(wifi.getmode())
 srv=net.createServer(net.TCP)  srv:listen(80,function(conn)      conn:on("receive",function(conn,payload)      print(payload)      conn:send("<h1> Hello, NodeMcu.</h1>")     end)  end)
@@ -305,13 +309,11 @@ Micropython
 DL esp8266-20171101-v1.9.3.bin
 ESPFlashtools => firmware at 0x00000
 
-Serial via putty (!!) 
+Serial via putty (!!)
 
 >>> import network
->>> wlan = network.WLAN(network.STA_IF) 
->>> wlan.active(True)      
+>>> wlan = network.WLAN(network.STA_IF)
+>>> wlan.active(True)
 >>> wlan.scan()
 [(b'Preview', b'\x00\xf6c\xaaeq', 1, -53, 3, 0), (b'Backoffice', b'\x00\xf6c\xaaep', 1, -54, 3, 0), (b'Jobbers02-ea70', b'\x90MJ\xfc\xeat', 1, -89, 4, 0), (b'SNFGE-WIFI', b'\xa0!\xb7\xac\xaa\xc5', 1, -85, 3, 0), (b'JFHOD2018', b'\x84\xd4~m\xe2%', 5, -78, 3, 0), (b'JFHOD2018', b'\x84\xd4~p\xa3\x05', 5, -66, 3, 0), (b'Bbox-38DE565C', b'd|4\xdf:|', 1, -90, 4, 0), (b'Yume', b'\x00\x1d\xaa~\x06h', 1, -88, 4, 0), (b'naxos', b'\x00\x19\xe8 0\xe1', 1, -89, 0, 0), (b'ZCGA_16037', b'\x00\x1b\x93\x01>\xa5', 8, -91, 2, 0), (b'JEPU2018', b'@\xe3\xd6WQ@', 9, -73, 0, 0), (b'Backoffice', b'\x00\xf6c\xa2\x120', 11, -62, 3, 0), (b'Preview', b'\x00\xf6c\xa2\x121', 11, -62, 3, 0), (b'JEPU2018', b"@\xe3\xd6W'\x00", 13, -73, 0, 0), (b'JFHOD2018', b'\xb4]P\xcd\x7f\xc5', 13, -81, 3, 0)]
 >>>
-
-
