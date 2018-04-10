@@ -183,6 +183,7 @@ int atESP_setCWJAP(SoftwareSerial* ss, char* ssid, char* password)
   int k;
   char* buffer;
 
+  /* Build commnand */
   buffer = (char*)malloc( (strlen("AT+CWJAP=\"\",\"\"")+strlen(ssid)+strlen(password))*sizeof(char) );
   if (buffer == NULL)
   {
@@ -198,10 +199,70 @@ int atESP_setCWJAP(SoftwareSerial* ss, char* ssid, char* password)
 }
 
 
-/* CIPSTATUS */
-char* atESP_getCIPSTATUS(SoftwareSerial* ss)
+/* CWJAP? */
+int atESP_getCWJAP(SoftwareSerial* ss, char* ssid)
 {
-  int k;
-  atESP_Send(ss,"AT+CIPSTATUS", str, &k);
-  return str;
+  int i,j,k;
+
+  if (atESP_Send(ss,"AT+CWJAP?", str, &k) == EXIT_FAILURE)
+  {
+    return EXIT_FAILURE;
+  }
+
+  /* Parse result */
+  for(i=0;(i<k)||(str[i]!='"');i++)
+  {
+    ;
+  }
+
+  if (i==k)
+  {
+    return EXIT_FAILURE;
+  }
+
+  i++;
+  for(j=0;str[i]!='"';j++,i++)
+  {
+    ssid[j]=str[i];
+  }
+  ssid[j]=0;
+
+
+  return EXIT_SUCCESS;
+}
+
+
+/* CIFSR */
+int atESP_getCIFSR(SoftwareSerial* ss, char* ip)
+{
+  int i,j,k;
+
+  if (atESP_Send(ss,"AT+CIFSR", str, &k) == EXIT_FAILURE)
+  {
+    return EXIT_FAILURE;
+  }
+
+  /* Parse result */
+  for(i=0;i<k-4;i++)
+  {
+    if ( (str[i] == 'S') &&  (str[i+1] == 'T') && (str[i+2] == 'A') && (str[i+3] == 'I') )
+    {
+      i+=7;
+      break;
+    }
+  }
+
+  if (i==k-4)
+  {
+    return EXIT_FAILURE;
+  }
+
+  for(j=0;str[i]!='"';j++,i++)
+  {
+    ip[j]=str[i];
+  }
+  ip[j]=0;
+
+
+  return EXIT_SUCCESS;
 }

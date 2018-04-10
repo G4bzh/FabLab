@@ -22,7 +22,10 @@ void setup()
     }
     Serial.println("ESP is ready");
 
-    Serial.println(atESP_setCWJAP(&ESPSerial, "Backoffice", "back4cyim"));
+    char ip[16];
+    atESP_setCWJAP(&ESPSerial, "Backoffice", "back4cyim");
+    atESP_getCIFSR(&ESPSerial, ip);
+    Serial.println(ip);
 
 }
 

@@ -15,7 +15,8 @@ int atESP_getCWMODE(SoftwareSerial* ss);
 int atESP_setCWMODE(SoftwareSerial* ss, int mode);
 
 int atESP_setCWJAP(SoftwareSerial* ss, char* ssid, char* password);
+int atESP_getCWJAP(SoftwareSerial* ss, char* ssid);
 
-char* atESP_getCIPSTATUS(SoftwareSerial* ss);
+int atESP_getCIFSR(SoftwareSerial* ss, char* ip);
 
 #endif
