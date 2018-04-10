@@ -266,3 +266,11 @@ int atESP_getCIFSR(SoftwareSerial* ss, char* ip)
 
   return EXIT_SUCCESS;
 }
+
+
+/* CWQAP */
+int atESP_setCWQAP(SoftwareSerial* ss)
+{
+  int k;
+  return atESP_Send(ss,"AT+CWQAP",str,&k);
+}

@@ -19,4 +19,6 @@ int atESP_getCWJAP(SoftwareSerial* ss, char* ssid);
 
 int atESP_getCIFSR(SoftwareSerial* ss, char* ip);
 
+int atESP_setCWQAP(SoftwareSerial* ss);
+
 #endif

@@ -26,6 +26,9 @@ void setup()
     atESP_setCWJAP(&ESPSerial, "Backoffice", "back4cyim");
     atESP_getCIFSR(&ESPSerial, ip);
     Serial.println(ip);
+    atESP_setCWQAP(&ESPSerial);
+    atESP_getCIFSR(&ESPSerial, ip);
+    Serial.println(ip);
 
 }
 
