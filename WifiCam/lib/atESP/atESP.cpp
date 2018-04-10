@@ -7,6 +7,10 @@
 #include <SoftwareSerial.h>
 #include "atESP.h"
 
+/* Global buffer for command result */
+char str[1024];
+
+
 /* Send command to the ESP */
 
 int atESP_Send(SoftwareSerial* ss, char* cmd, char* buff, int* sz)
@@ -59,7 +63,6 @@ int atESP_Send(SoftwareSerial* ss, char* cmd, char* buff, int* sz)
 /* CWLAP */
 int atESP_CWLAP(SoftwareSerial* ss, char* ssid[], int* n)
 {
-  char str[1024];
   int k,i,j,l,id;
 
   /* Send AT+CWLAP and get a result */
