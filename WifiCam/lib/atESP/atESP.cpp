@@ -12,7 +12,6 @@ char str[1024];
 
 
 /* Send command to the ESP */
-
 int atESP_Send(SoftwareSerial* ss, char* cmd, char* buff, int* sz)
 {
   int i,n,k,ok,res;
@@ -61,7 +60,7 @@ int atESP_Send(SoftwareSerial* ss, char* cmd, char* buff, int* sz)
 
 
 /* CWLAP */
-int atESP_CWLAP(SoftwareSerial* ss, char* ssid[], int* n)
+int atESP_getCWLAP(SoftwareSerial* ss, char* ssid[], int* n)
 {
   int k,i,j,l,id;
 
@@ -103,5 +102,66 @@ int atESP_CWLAP(SoftwareSerial* ss, char* ssid[], int* n)
   *n = j;
 
   return EXIT_SUCCESS;
+
+}
+
+
+
+/* CWMODE? */
+int atESP_getCWMODE(SoftwareSerial* ss)
+{
+  int i,k;
+  char c;
+
+  /* Send AT+CWLAP and get a result */
+  while ( atESP_Send(ss,(char*)"AT+CWMODE?", str, &k) != EXIT_SUCCESS )
+  {
+    ;
+  }
+
+  /* Parse result */
+  for(i=0;i<k-1;i++)
+  {
+    if (str[i] == ':')
+    {
+      /* Get number */
+      c = str[i+1];
+      break;
+    }
+  }
+
+  switch(c)
+  {
+    case '1':
+      return atESP_STA;
+
+    case '2':
+      return atESP_AP;
+
+    case '3':
+      return atESP_STAP;
+
+    default:
+      return EXIT_FAILURE;
+  }
+
+}
+
+
+/* CWMODE */
+int atESP_setCWMODE(SoftwareSerial* ss, int mode)
+{
+  int k;
+  char buffer[12];
+
+  /* Sanity Check */
+  if ( (mode!=atESP_STA) || (mode!=atESP_AP) || (mode!=atESP_STAP) )
+  {
+    return EXIT_FAILURE;
+  }
+
+  sprintf(buffer,"AT+CWMODE=%d",mode);
+
+  return atESP_Send(ss,(char*)"AT+CWMODE?", str, &k);
 
 }

@@ -27,29 +27,13 @@ void setup()
 
 void loop()
 {
-  int n,i;
-  char** ssid;
 
-  ssid = (char**)malloc(20*sizeof(char*));
-  for(i=0;i<20;i++)
-  {
-    ssid[i] = (char*)malloc(20*sizeof(char));
-  }
+  Serial.println("Setting AP mode (1/2)");
+  Serial.println(atESP_setCWMODE(&ESPSerial, atESP_STA));
+  Serial.println(atESP_getCWMODE(&ESPSerial));
 
-  atESP_CWLAP(&ESPSerial, ssid, &n);
-
-  Serial.print("Got ");
-  Serial.print(n),
-  Serial.println(" SSID :");
-  for(i=0;i<n;i++)
-  {
-    Serial.println(ssid[i]);
-  }
-
-  for(i=0;i<20;i++)
-  {
-    free(ssid[i]);
-  }
-  free(ssid);
+  Serial.println("Setting AP mode (2/2)");
+  Serial.println(atESP_setCWMODE(&ESPSerial, atESP_STAP));
+  Serial.println(atESP_getCWMODE(&ESPSerial));
 
 }
