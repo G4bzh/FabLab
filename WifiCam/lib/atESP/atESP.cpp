@@ -165,14 +165,14 @@ int atESP_setCWMODE(SoftwareSerial* ss, int mode)
   char buffer[12];
 
   /* Sanity Check */
-  if ( (mode!=atESP_STA) || (mode!=atESP_AP) || (mode!=atESP_STAP) )
+  if ( (mode!=atESP_STA) && (mode!=atESP_AP) && (mode!=atESP_STAP) )
   {
     return EXIT_FAILURE;
   }
 
   sprintf(buffer,"AT+CWMODE=%d",mode);
 
-  return atESP_Send(ss,(char*)"AT+CWMODE?", str, &k);
+  return atESP_Send(ss,buffer, str, &k);
 
 }
 
@@ -273,4 +273,62 @@ int atESP_setCWQAP(SoftwareSerial* ss)
 {
   int k;
   return atESP_Send(ss,"AT+CWQAP",str,&k);
+}
+
+
+/* CIPMODE? */
+int atESP_getCIPMODE(SoftwareSerial* ss)
+{
+  int i,k;
+  char c;
+
+  /* Send AT+CWLAP and get a result */
+  while ( atESP_Send(ss,(char*)"AT+CIPMODE?", str, &k) != EXIT_SUCCESS )
+  {
+    ;
+  }
+
+  /* Parse result */
+  for(i=0;i<k-1;i++)
+  {
+    if (str[i] == ':')
+    {
+      /* Get number */
+      c = str[i+1];
+      break;
+    }
+  }
+
+  switch(c)
+  {
+    case '0':
+      return atESP_NORMAL;
+
+    case '1':
+      return atESP_TRANSPARENT;
+
+    default:
+      return EXIT_FAILURE;
+  }
+
+}
+
+
+
+/* CIPMODE */
+int atESP_setCIPMODE(SoftwareSerial* ss, int mode)
+{
+  int k;
+  char buffer[16];
+
+  /* Sanity Check */
+  if ( (mode!=atESP_NORMAL) && (mode!=atESP_TRANSPARENT) )
+  {
+    return EXIT_FAILURE;
+  }
+
+  sprintf(buffer,"AT+CIPMODE=%d",mode);
+
+  return atESP_Send(ss,buffer, str, &k);
+
 }

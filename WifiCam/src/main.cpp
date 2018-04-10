@@ -5,7 +5,7 @@
 #define WAIT 200
 
 SoftwareSerial ESPSerial(3, 4); // RX | TX
-
+char c;
 
 
 void setup()
@@ -26,13 +26,11 @@ void setup()
     atESP_setCWJAP(&ESPSerial, "Backoffice", "back4cyim");
     atESP_getCIFSR(&ESPSerial, ip);
     Serial.println(ip);
-    atESP_setCWQAP(&ESPSerial);
-    atESP_getCIFSR(&ESPSerial, ip);
-    Serial.println(ip);
-
+    atESP_setCIPMODE(&ESPSerial,atESP_NORMAL);
+    Serial.println(atESP_getCIPMODE(&ESPSerial));
+    atESP_setCIPMODE(&ESPSerial,atESP_TRANSPARENT);
+    Serial.println(atESP_getCIPMODE(&ESPSerial));
 }
-
-char c;
 
 void loop()
 {
