@@ -35,17 +35,15 @@ void setup()
 void loop()
 {
 
-if (ESPSerial.available())
-{
-   c = ESPSerial.read();
-   Serial.write(c);
-}
-if (Serial.available())
-{
-   c =  Serial.read();
-   ESPSerial.write(c);
-}
-
-
+  if (ESPSerial.available())
+  {
+     c = ESPSerial.read();
+     Serial.write(c);
+  }
+  if (Serial.available())
+  {
+     c =  Serial.read();
+     ESPSerial.write(c);
+  }
 
 }
