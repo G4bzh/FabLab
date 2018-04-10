@@ -6,9 +6,9 @@
 SoftwareSerial ESPserial(3, 4); // RX | TX
 
 
-void sendESP(SoftwareSerial* ss, char* cmd, char* buff, int* sz)
+int sendESP(SoftwareSerial* ss, char* cmd, char* buff, int* sz)
 {
-  int i,n,k,ok;
+  int i,n,k,ok,res;
 
   k=0;
   ok=0;
@@ -36,6 +36,7 @@ void sendESP(SoftwareSerial* ss, char* cmd, char* buff, int* sz)
         {
           /* Found ! */
           ok = 1;
+          res = buff[i+1] == 'K' ? 1 : 0 ;
         }
       }
 
@@ -48,7 +49,7 @@ void sendESP(SoftwareSerial* ss, char* cmd, char* buff, int* sz)
   /* Null terminate buffer */
   buff[k] = 0;
 
-  return;
+  return res;
 }
 
 void setup()
@@ -73,7 +74,10 @@ void loop()
   char str[1024];
   int n;
 
-  sendESP(&ESPserial,(char*)"AT+CWLAP", str, &n);
+  while (!sendESP(&ESPserial,(char*)"AT+CWLAP", str, &n))
+  {
+    ;
+  }
   delay(WAIT);
   Serial.print("Got ");
   Serial.print(n),
