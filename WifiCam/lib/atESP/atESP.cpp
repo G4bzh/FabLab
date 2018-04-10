@@ -4,6 +4,7 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 #include <SoftwareSerial.h>
 #include "atESP.h"
 
@@ -35,7 +36,7 @@ int atESP_Send(SoftwareSerial* ss, char* cmd, char* buff, int* sz)
       /* Update counter */
       k+=i;
 
-      /* Look for "OK\r" that terminates an AT command response */
+      /* Look for "OK\r" or "ERROR\r" that terminates an AT command response */
       for(i=0;i<k-2;i++)
       {
         if ( (buff[i] == 'O') && ( (buff[i+1] == 'K') || (buff[i+1] == 'R') ) && (buff[i+2] == '\r') )
@@ -44,6 +45,15 @@ int atESP_Send(SoftwareSerial* ss, char* cmd, char* buff, int* sz)
           ok = 1;
           res = buff[i+1] == 'K' ? EXIT_SUCCESS : EXIT_FAILURE ;
         }
+
+        /* Look for "FAIL\r" */
+        if ( (buff[i] == 'I') && (buff[i+1] == 'L') && (buff[i+2] == '\r') )
+        {
+          /* Found ! */
+          ok = 1;
+          res = EXIT_FAILURE ;
+        }
+
       }
 
     }
@@ -164,4 +174,34 @@ int atESP_setCWMODE(SoftwareSerial* ss, int mode)
 
   return atESP_Send(ss,(char*)"AT+CWMODE?", str, &k);
 
+}
+
+
+/* CWJAP */
+int atESP_setCWJAP(SoftwareSerial* ss, char* ssid, char* password)
+{
+  int k;
+  char* buffer;
+
+  buffer = (char*)malloc( (strlen("AT+CWJAP=\"\",\"\"")+strlen(ssid)+strlen(password))*sizeof(char) );
+  if (buffer == NULL)
+  {
+    return EXIT_FAILURE;
+  }
+  sprintf(buffer,"AT+CWJAP=\"%s\",\"%s\"",ssid,password);
+
+  atESP_Send(ss, buffer, str, &k);
+
+  free(buffer);
+
+  return EXIT_SUCCESS;
+}
+
+
+/* CIPSTATUS */
+char* atESP_getCIPSTATUS(SoftwareSerial* ss)
+{
+  int k;
+  atESP_Send(ss,"AT+CIPSTATUS", str, &k);
+  return str;
 }

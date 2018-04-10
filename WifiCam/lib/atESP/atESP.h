@@ -10,7 +10,12 @@
 
 /* Protoypes */
 int atESP_getCWLAP(SoftwareSerial* ss, char* ssid[], int* n);
+
 int atESP_getCWMODE(SoftwareSerial* ss);
 int atESP_setCWMODE(SoftwareSerial* ss, int mode);
+
+int atESP_setCWJAP(SoftwareSerial* ss, char* ssid, char* password);
+
+char* atESP_getCIPSTATUS(SoftwareSerial* ss);
 
 #endif
