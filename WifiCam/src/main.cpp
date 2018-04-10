@@ -1,56 +1,12 @@
 #include <Arduino.h>
 #include <SoftwareSerial.h>
+#include <atESP.h>
 
 #define WAIT 200
 
-SoftwareSerial ESPserial(3, 4); // RX | TX
+SoftwareSerial ESPSerial(3, 4); // RX | TX
 
 
-int sendESP(SoftwareSerial* ss, char* cmd, char* buff, int* sz)
-{
-  int i,n,k,ok,res;
-
-  k=0;
-  ok=0;
-
-  /* Send command */
-  ss->println(cmd);
-
-  while(!ok)
-  {
-    if ( (n=ss->available()) )
-    {
-
-      /* Fill buffer with new data */
-      for(i=0;i<n;i++)
-      {
-        buff[k+i] = ss->read();
-      }
-      /* Update counter */
-      k+=i;
-
-      /* Look for "OK\r" that terminates an AT command response */
-      for(i=0;i<k-2;i++)
-      {
-        if ( (buff[i] == 'O') && ( (buff[i+1] == 'K') || (buff[i+1] == 'R') ) && (buff[i+2] == '\r') )
-        {
-          /* Found ! */
-          ok = 1;
-          res = buff[i+1] == 'K' ? 1 : 0 ;
-        }
-      }
-
-    }
-
-  }
-
-  /* Set buffer size */
-  *sz = k;
-  /* Null terminate buffer */
-  buff[k] = 0;
-
-  return res;
-}
 
 void setup()
 {
@@ -63,7 +19,7 @@ void setup()
     Serial.println("Arduino is ready");
     Serial.println("Remember to select Both NL & CR in the serial monitor :)");
 
-    ESPserial.begin(9600);
+    ESPSerial.begin(9600);
 
 
 
@@ -71,17 +27,29 @@ void setup()
 
 void loop()
 {
-  char str[1024];
-  int n;
+  int n,i;
+  char** ssid;
 
-  while (!sendESP(&ESPserial,(char*)"AT+CWLAP", str, &n))
+  ssid = (char**)malloc(20*sizeof(char*));
+  for(i=0;i<20;i++)
   {
-    ;
+    ssid[i] = (char*)malloc(20*sizeof(char));
   }
-  delay(WAIT);
+
+  atESP_CWLAP(&ESPSerial, ssid, &n);
+
   Serial.print("Got ");
   Serial.print(n),
-  Serial.println(" bytes :");
-  Serial.println(str);
+  Serial.println(" SSID :");
+  for(i=0;i<n;i++)
+  {
+    Serial.println(ssid[i]);
+  }
+
+  for(i=0;i<20;i++)
+  {
+    free(ssid[i]);
+  }
+  free(ssid);
 
 }
