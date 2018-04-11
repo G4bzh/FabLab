@@ -25,11 +25,19 @@ void setup()
     char ip[16];
     atESP_setCWJAP(&ESPSerial, "Backoffice", "back4cyim");
     atESP_getCIFSR(&ESPSerial, ip);
+    Serial.print("Got IP: ");
     Serial.println(ip);
-    atESP_setCIPMODE(&ESPSerial,atESP_NORMAL);
-    Serial.println(atESP_getCIPMODE(&ESPSerial));
     atESP_setCIPMODE(&ESPSerial,atESP_TRANSPARENT);
-    Serial.println(atESP_getCIPMODE(&ESPSerial));
+    if ( atESP_setCIPSTART(&ESPSerial,"TCP","192.168.218.147",8080) == EXIT_SUCCESS )
+    {
+      Serial.println("Successfully connected to server");
+    }
+    else
+    {
+      Serial.println("Unable to connect to server");
+    }
+
+    atESP_setCIPCLOSE(&ESPSerial);
 }
 
 void loop()

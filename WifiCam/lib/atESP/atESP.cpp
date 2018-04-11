@@ -332,3 +332,33 @@ int atESP_setCIPMODE(SoftwareSerial* ss, int mode)
   return atESP_Send(ss,buffer, str, &k);
 
 }
+
+
+/* CIPSTART */
+int atESP_setCIPSTART(SoftwareSerial* ss, char* proto, char* addr, int port)
+{
+  int k,res;
+  char* buffer;
+
+  /* Build commnand */
+  buffer = (char*)malloc( (strlen("AT+CIPSTART=\"\",\"\",123456")+strlen(proto)+strlen(addr))*sizeof(char) );
+  if (buffer == NULL)
+  {
+    return EXIT_FAILURE;
+  }
+  sprintf(buffer,"AT+CIPSTART=\"%s\",\"%s\",%d",proto,addr,port);
+
+  res = atESP_Send(ss, buffer, str, &k);
+
+  free(buffer);
+
+  return   res;
+}
+
+
+/* CIPCLOSE */
+int atESP_setCIPCLOSE(SoftwareSerial* ss)
+{
+  int k;
+  return atESP_Send(ss,"AT+CIPCLOSE",str,&k);  
+}

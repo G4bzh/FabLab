@@ -29,4 +29,7 @@ int atESP_setCWQAP(SoftwareSerial* ss);
 int atESP_getCIPMODE(SoftwareSerial* ss);
 int atESP_setCIPMODE(SoftwareSerial* ss, int mode);
 
+int atESP_setCIPSTART(SoftwareSerial* ss, char* proto, char* addr, int port);
+int atESP_setCIPCLOSE(SoftwareSerial* ss);
+
 #endif
