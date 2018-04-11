@@ -31,5 +31,6 @@ int atESP_setCIPMODE(SoftwareSerial* ss, int mode);
 
 int atESP_setCIPSTART(SoftwareSerial* ss, char* proto, char* addr, int port);
 int atESP_setCIPCLOSE(SoftwareSerial* ss);
+int atESP_setCIPSEND(SoftwareSerial* ss, char* data);
 
 #endif

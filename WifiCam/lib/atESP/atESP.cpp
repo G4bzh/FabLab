@@ -36,7 +36,7 @@ int atESP_Send(SoftwareSerial* ss, char* cmd, char* buff, int* sz)
       /* Update counter */
       k+=i;
 
-      /* Look for "OK\r" or "ERROR\r" that terminates an AT command response */
+      /* Look for "OK\r" or "ERROR\r" or "FAIL\r" that terminates an AT command response */
       for(i=0;i<k-2;i++)
       {
         if ( (buff[i] == 'O') && ( (buff[i+1] == 'K') || (buff[i+1] == 'R') ) && (buff[i+2] == '\r') )
@@ -54,6 +54,14 @@ int atESP_Send(SoftwareSerial* ss, char* cmd, char* buff, int* sz)
           res = EXIT_FAILURE ;
         }
 
+      }
+
+      /* CIPSEND: last char is '>' */
+      if (buff[k-1] == '>')
+      {
+        /* Found ! */
+        ok = 1;
+        res = EXIT_SUCCESS;
       }
 
     }
@@ -360,5 +368,27 @@ int atESP_setCIPSTART(SoftwareSerial* ss, char* proto, char* addr, int port)
 int atESP_setCIPCLOSE(SoftwareSerial* ss)
 {
   int k;
-  return atESP_Send(ss,"AT+CIPCLOSE",str,&k);  
+  return atESP_Send(ss,"AT+CIPCLOSE",str,&k);
+}
+
+
+/* CIPSEND TRANSPARENT */
+int atESP_setCIPSEND(SoftwareSerial* ss, char* data)
+{
+  int k,n;
+
+  n=strlen(data);
+  char buffer[16];
+
+  sprintf(buffer,"AT+CIPSEND=%d",n);
+
+  if (atESP_Send(ss, buffer, str, &k) == EXIT_SUCCESS)
+  {
+    return atESP_Send(ss, data, str, &k);
+  }
+  else
+  {
+    return EXIT_FAILURE;
+  }
+
 }

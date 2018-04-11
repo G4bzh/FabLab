@@ -27,17 +27,17 @@ void setup()
     atESP_getCIFSR(&ESPSerial, ip);
     Serial.print("Got IP: ");
     Serial.println(ip);
-    atESP_setCIPMODE(&ESPSerial,atESP_TRANSPARENT);
+    atESP_setCIPMODE(&ESPSerial,atESP_NORMAL);
     if ( atESP_setCIPSTART(&ESPSerial,"TCP","192.168.218.147",8080) == EXIT_SUCCESS )
     {
       Serial.println("Successfully connected to server");
+      atESP_setCIPSEND(&ESPSerial,"HELLO");
+      atESP_setCIPCLOSE(&ESPSerial);
     }
     else
     {
       Serial.println("Unable to connect to server");
     }
-
-    atESP_setCIPCLOSE(&ESPSerial);
 }
 
 void loop()
