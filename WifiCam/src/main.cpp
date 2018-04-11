@@ -31,7 +31,7 @@ void setup()
     if ( atESP_setCIPSTART(&ESPSerial,"TCP","192.168.218.147",8080) == EXIT_SUCCESS )
     {
       Serial.println("Successfully connected to server");
-      atESP_setCIPSEND(&ESPSerial,"HELLO");
+      atESP_setCIPSEND(&ESPSerial,"HELLO WORLD !");
       atESP_setCIPCLOSE(&ESPSerial);
     }
     else
