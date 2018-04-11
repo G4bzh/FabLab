@@ -19,7 +19,7 @@ int atESP_getCWLAP(SoftwareSerial* ss, char* ssid[], int* n);
 int atESP_getCWMODE(SoftwareSerial* ss);
 int atESP_setCWMODE(SoftwareSerial* ss, int mode);
 
-int atESP_setCWJAP(SoftwareSerial* ss, char* ssid, char* password);
+int atESP_setCWJAP(SoftwareSerial* ss, const char* ssid, const char* password);
 int atESP_getCWJAP(SoftwareSerial* ss, char* ssid);
 
 int atESP_getCIFSR(SoftwareSerial* ss, char* ip);
@@ -29,8 +29,8 @@ int atESP_setCWQAP(SoftwareSerial* ss);
 int atESP_getCIPMODE(SoftwareSerial* ss);
 int atESP_setCIPMODE(SoftwareSerial* ss, int mode);
 
-int atESP_setCIPSTART(SoftwareSerial* ss, char* proto, char* addr, int port);
+int atESP_setCIPSTART(SoftwareSerial* ss, const char* proto, const char* addr, int port);
 int atESP_setCIPCLOSE(SoftwareSerial* ss);
-int atESP_setCIPSEND(SoftwareSerial* ss, char* data);
+int atESP_setCIPSEND(SoftwareSerial* ss, const char* data);
 
 #endif

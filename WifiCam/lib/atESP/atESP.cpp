@@ -13,7 +13,7 @@ char str[1024];
 
 
 /* Send command to the ESP */
-int atESP_Send(SoftwareSerial* ss, char* cmd, char* buff, int* sz)
+int atESP_Send(SoftwareSerial* ss, const char* cmd, char* buff, int* sz)
 {
   int i,n,k,ok,res;
 
@@ -83,7 +83,7 @@ int atESP_getCWLAP(SoftwareSerial* ss, char* ssid[], int* n)
   int k,i,j,l,id;
 
   /* Send AT+CWLAP and get a result */
-  while ( atESP_Send(ss,(char*)"AT+CWLAP", str, &k) != EXIT_SUCCESS )
+  while ( atESP_Send(ss,"AT+CWLAP", str, &k) != EXIT_SUCCESS )
   {
     ;
   }
@@ -186,7 +186,7 @@ int atESP_setCWMODE(SoftwareSerial* ss, int mode)
 
 
 /* CWJAP */
-int atESP_setCWJAP(SoftwareSerial* ss, char* ssid, char* password)
+int atESP_setCWJAP(SoftwareSerial* ss, const char* ssid, const char* password)
 {
   int k;
   char* buffer;
@@ -343,7 +343,7 @@ int atESP_setCIPMODE(SoftwareSerial* ss, int mode)
 
 
 /* CIPSTART */
-int atESP_setCIPSTART(SoftwareSerial* ss, char* proto, char* addr, int port)
+int atESP_setCIPSTART(SoftwareSerial* ss, const char* proto, const char* addr, int port)
 {
   int k,res;
   char* buffer;
@@ -373,7 +373,7 @@ int atESP_setCIPCLOSE(SoftwareSerial* ss)
 
 
 /* CIPSEND TRANSPARENT */
-int atESP_setCIPSEND(SoftwareSerial* ss, char* data)
+int atESP_setCIPSEND(SoftwareSerial* ss, const char* data)
 {
   int k,n;
 
