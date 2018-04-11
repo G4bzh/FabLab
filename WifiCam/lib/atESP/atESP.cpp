@@ -12,6 +12,21 @@
 char str[1024];
 
 
+int atESP_getSize(const char* str)
+{
+  int i;
+  /* ¤ =-62 */
+  for(i=0;str[i]!=-62;i++)
+  {
+    if (i>2048)
+    {
+      i=0;
+      break;
+    }
+  }
+  return i;
+}
+
 /* Send command to the ESP */
 int atESP_Send(SoftwareSerial* ss, const char* cmd, char* buff, int* sz)
 {
@@ -373,11 +388,10 @@ int atESP_setCIPCLOSE(SoftwareSerial* ss)
 
 
 /* CIPSEND TRANSPARENT */
-int atESP_setCIPSEND(SoftwareSerial* ss, const char* data)
+int atESP_setCIPSEND(SoftwareSerial* ss, const char* data, int n)
 {
-  int k,n;
+  int k;
 
-  n=strlen(data);
   char buffer[16];
 
   sprintf(buffer,"AT+CIPSEND=%d",n);

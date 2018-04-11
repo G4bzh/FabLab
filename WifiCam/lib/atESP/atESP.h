@@ -14,6 +14,8 @@
 
 
 /* Protoypes */
+int atESP_getSize(const char* str);
+
 int atESP_getCWLAP(SoftwareSerial* ss, char* ssid[], int* n);
 
 int atESP_getCWMODE(SoftwareSerial* ss);
@@ -31,6 +33,6 @@ int atESP_setCIPMODE(SoftwareSerial* ss, int mode);
 
 int atESP_setCIPSTART(SoftwareSerial* ss, const char* proto, const char* addr, int port);
 int atESP_setCIPCLOSE(SoftwareSerial* ss);
-int atESP_setCIPSEND(SoftwareSerial* ss, const char* data);
+int atESP_setCIPSEND(SoftwareSerial* ss, const char* data, int n);
 
 #endif
