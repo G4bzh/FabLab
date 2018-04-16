@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <SoftwareSerial.h>
+#include <Base64.h>
 #include "atESP.h"
 
 /* Global buffer for command result */
@@ -405,4 +406,37 @@ int atESP_setCIPSEND(SoftwareSerial* ss, const char* data, int n)
     return EXIT_FAILURE;
   }
 
+}
+
+
+/* Send Buffer Data through existing connection */
+int atESP_sendData(SoftwareSerial* ss, const char* data, int size, const char* name)
+{
+  int l;
+  char* bmsg;
+  char buffer[64];
+
+  l = Base64.encodedLength(size);
+  bmsg = (char*)malloc(l*sizeof(char));
+  if (bmsg == NULL)
+  {
+    return EXIT_FAILURE;
+  }
+  Base64.encode(bmsg, data, size);
+
+  sprintf(buffer,"POST /esp/%s HTTP/1.0\n",name);
+  atESP_setCIPSEND(ss,buffer,20+strlen(name));
+
+  atESP_setCIPSEND(ss,"Host: 0.0.0.0:5000\n",19);
+  atESP_setCIPSEND(ss,"Content-Type: text\\plain\n",25);
+
+  sprintf(buffer,"Content-Length: %d\n",l);
+  atESP_setCIPSEND(ss,buffer,strlen(buffer));
+
+  atESP_setCIPSEND(ss,"\n",1);
+  atESP_setCIPSEND(ss,bmsg,l);
+  atESP_setCIPCLOSE(ss);
+  free(bmsg);
+
+  return EXIT_SUCCESS;
 }

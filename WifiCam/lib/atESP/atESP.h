@@ -35,4 +35,6 @@ int atESP_setCIPSTART(SoftwareSerial* ss, const char* proto, const char* addr, i
 int atESP_setCIPCLOSE(SoftwareSerial* ss);
 int atESP_setCIPSEND(SoftwareSerial* ss, const char* data, int n);
 
+int atESP_sendData(SoftwareSerial* ss, const char* data, int size, const char* name);
+
 #endif
