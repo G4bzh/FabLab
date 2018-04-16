@@ -432,10 +432,11 @@ int atESP_sendData(SoftwareSerial* ss, const char* data, int size, const char* n
 
   sprintf(buffer,"Content-Length: %d\n",l);
   atESP_setCIPSEND(ss,buffer,strlen(buffer));
-
   atESP_setCIPSEND(ss,"\n",1);
+
+
   atESP_setCIPSEND(ss,bmsg,l);
-  atESP_setCIPCLOSE(ss);
+
   free(bmsg);
 
   return EXIT_SUCCESS;
