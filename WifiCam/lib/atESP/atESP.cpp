@@ -410,11 +410,16 @@ int atESP_setCIPSEND(SoftwareSerial* ss, const char* data, int n)
 
 
 /* Send Buffer Data through existing connection */
-int atESP_sendData(SoftwareSerial* ss, const char* data, int size, const char* name)
+int atESP_sendData64(SoftwareSerial* ss, const char* data, int size, const char* name)
 {
   int l;
   char* bmsg;
   char buffer[64];
+
+  if (size > 64)
+  {
+    return EXIT_FAILURE;
+  }
 
   l = Base64.encodedLength(size);
   bmsg = (char*)malloc(l*sizeof(char));
