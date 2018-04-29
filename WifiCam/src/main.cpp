@@ -27,15 +27,16 @@ void setup()
 
     char ip[16];
     //atESP_setCWJAP(&ESPSerial, "Backoffice", "back4cyim");
-    atESP_setCWJAP(&ESPSerial, "NETGEAR", "fablab35320");
+    //atESP_setCWJAP(&ESPSerial, "NETGEAR", "fablab35320");
+    atESP_setCWJAP(&ESPSerial, "Abouhhh", "malojanogabyfrimousse35150!");
     atESP_getCIFSR(&ESPSerial, ip);
     Serial.print("Got IP: ");
     Serial.println(ip);
     atESP_setCIPMODE(&ESPSerial,atESP_NORMAL);
-    if ( atESP_setCIPSTART(&ESPSerial,"TCP","192.168.0.40",5000) == EXIT_SUCCESS )
+    if ( atESP_setCIPSTART(&ESPSerial,"TCP","192.168.0.16",5000) == EXIT_SUCCESS )
     {
       char buffer[64];
-      const char* msg = "1234567890123456789012345678901234567890123456789012345678901234";
+      const char* msg = "123456789-123456789-123456789-123456789-123456789-123456789-1234";
       int n=67;
 
       int i,j,d,r;
@@ -45,10 +46,10 @@ void setup()
       d = n/64;
       r = n%64;
 
-
-      atESP_sendData64(&ESPSerial, "+++", 3, "64.txt");
-      atESP_sendData64(&ESPSerial, msg, 64, "64.txt");
-
+      atESP_sendData64(&ESPSerial,  msg, 64, "64.txt");
+      
+        //  atESP_sendData64(&ESPSerial, &Serial, msg, 64, "64.txt");
+        //Serial.println("Me too !");
       // for(i=0;i<d;i++)
       // {
       //

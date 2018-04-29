@@ -6,8 +6,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <SoftwareSerial.h>
+#include <HardwareSerial.h>
+#include <Arduino.h>
 #include <Base64.h>
 #include "atESP.h"
+
 
 /* Global buffer for command result */
 char str[1024];
@@ -38,6 +41,7 @@ int atESP_Send(SoftwareSerial* ss, const char* cmd, char* buff, int* sz)
 
   /* Send command */
   ss->println(cmd);
+  Serial.println(cmd);
 
   while(!ok)
   {
@@ -79,7 +83,6 @@ int atESP_Send(SoftwareSerial* ss, const char* cmd, char* buff, int* sz)
         ok = 1;
         res = EXIT_SUCCESS;
       }
-
     }
 
   }
@@ -429,20 +432,23 @@ int atESP_sendData64(SoftwareSerial* ss, const char* data, int size, const char*
   }
   Base64.encode(bmsg, data, size);
 
+
+
   sprintf(buffer,"POST /esp/%s HTTP/1.0\n",name);
   atESP_setCIPSEND(ss,buffer,20+strlen(name));
 
   atESP_setCIPSEND(ss,"Host: 0.0.0.0:5000\n",19);
+
+
   atESP_setCIPSEND(ss,"Content-Type: text\\plain\n",25);
 
-  sprintf(buffer,"Content-Length: %d\n",l);
+  sprintf(buffer,"Content-Length: %d\n",size);
   atESP_setCIPSEND(ss,buffer,strlen(buffer));
-  atESP_setCIPSEND(ss,"\n",1);
 
+   atESP_setCIPSEND(ss,"\n",1);
+   atESP_setCIPSEND(ss,data,size);
 
-  atESP_setCIPSEND(ss,bmsg,l);
-
-  free(bmsg);
+   free(bmsg);
 
   return EXIT_SUCCESS;
 }
