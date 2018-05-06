@@ -1,6 +1,7 @@
 #include "osapi.h"
 #include "user_interface.h"
 #include "espconn.h"
+#include <mem.h>
 
 /*********************************************
  *
@@ -14,6 +15,22 @@
 
 /*********************************************
  *
+ * Queue
+ *
+ *********************************************/
+
+struct _send_queue
+{
+  uint8* data;
+  uint16 len;
+  struct _send_queue *prev;
+  struct _send_queue *next;
+};
+typedef struct _send_queue send_queue_t;
+
+
+/*********************************************
+ *
  * Global variables
  *
  *********************************************/
@@ -21,11 +38,8 @@
 struct espconn  myconn;
 ip_addr_t myip;
 esp_tcp mytcp;
-char buffer[256];
-char data[64];
-
 os_timer_t timer_sent;
-int mtx_sent;
+send_queue_t *send_head = NULL;
 
 
 /******************************************************************************
@@ -82,7 +96,7 @@ user_rf_cal_sector_set(void)
 
 /*********************************************
  *
- * Send  Callbacks
+ * Sent Callbacks
  *
  *********************************************/
 
@@ -90,22 +104,88 @@ void server_sent_cb( void *arg )
 {
     struct espconn *conn = (struct espconn *)arg;
 
-    mtx_sent = 0;
+    if (send_head->next != send_head)
+    {
+      send_queue_t *q;
+
+      q = send_head;
+      send_head->prev->next = send_head->next;
+      send_head->next->prev = send_head->prev;
+      send_head = send_head->next;
+
+      os_free(q);
+    }
+    else
+    {
+      os_free(send_head);
+      send_head = NULL;
+    }
+
+
+
+    os_timer_arm(&timer_sent, 100, 1);
 
 }
 
 
-void server_send(void *parg)
+/*********************************************
+ *
+ * Send Timer Callback
+ *
+ *********************************************/
+
+
+void server_send_cb(void *parg)
 {
   struct espconn *conn = (struct espconn *)parg;
 
-  if (!mtx_sent)
+  if (send_head != NULL)
   {
-    mtx_sent = 1;
+    os_timer_disarm(&timer_sent);
+
     espconn_regist_sentcb(conn, server_sent_cb);
-    espconn_send(conn, data, os_strlen(data) );
+    espconn_send(conn, send_head->data, send_head->len );
   }
+
 }
+
+
+/*********************************************
+ *
+ * Send enqueue
+ *
+ *********************************************/
+
+ void send_enqueue(uint8* data, uint16 len)
+ {
+    send_queue_t *q;
+
+    q = (send_queue_t*)os_malloc(sizeof(send_queue_t));
+    if (q == NULL)
+    {
+      os_printf("Cannot allocate memory ofr sending");
+      return;
+    }
+
+    q->data = data;
+    q->len = len;
+
+
+    if (send_head == NULL)
+    {
+      send_head = q;
+      q->next = q;
+      q->prev = q;
+    }
+    else
+    {
+      q->prev = send_head->prev;
+      q->next = send_head;
+      send_head->prev->next = q;
+      send_head->prev = q;
+
+    }
+ }
 
 
 /*********************************************
@@ -117,17 +197,15 @@ void server_send(void *parg)
 void server_connected_cb( void *arg )
 {
     struct espconn *conn = (struct espconn *)arg;
-    int i, status;
 
-
-
-    os_sprintf( data, "123456789-123456789-123456789-123456789-123456789-123456789-000-" );
-    mtx_sent = 0;
 
     os_timer_disarm(&timer_sent);
-    os_timer_setfn(&timer_sent, (os_timer_func_t *)server_send, conn);
+    os_timer_setfn(&timer_sent, (os_timer_func_t *)server_send_cb, conn);
     os_timer_arm(&timer_sent, 100, 1);
 
+
+    send_enqueue("1234567890",10);
+    send_enqueue("abcdefghij",10);
       //os_sprintf( buffer, "POST %s HTTP/1.1\r\nHost: %s\r\nConnection: close\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", "/esp/toto.txt", SERVER_NAME, os_strlen(data), data );
 
 
