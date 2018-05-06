@@ -8,8 +8,8 @@
  *
  *********************************************/
 
-#define SERVER  "www.google.com"
-
+#define SERVER_NAME  "192.168.188.153"
+#define SERVER_IS_IP 1
 
 /*********************************************
  *
@@ -86,8 +86,13 @@ LOCAL void ICACHE_FLASH_ATTR dns_found_cb(const char *name, ip_addr_t *ipaddr, v
 
     if (ipaddr != NULL)
     {
-      os_printf("Server %s IP : %d.%d.%d.%d\n", name, *((uint8 *)&ipaddr->addr), *((uint8 *)&ipaddr->addr + 1), *((uint8 *)&ipaddr->addr + 2), *((uint8 *)&ipaddr->addr + 3));
+      os_printf("Server %s IP : " IPSTR "\n", name, *((uint8 *)&ipaddr->addr), *((uint8 *)&ipaddr->addr + 1), *((uint8 *)&ipaddr->addr + 2), *((uint8 *)&ipaddr->addr + 3));
     }
+    else
+    {
+      os_printf("Failed to resolve %s\n", name);
+    }
+
 }
 
 
@@ -129,7 +134,17 @@ void wifi_handle_event_cb(System_Event_t *evt)
       os_printf("\n");
 
       /* Resolve Server Name */
-      espconn_gethostbyname( &myconn, SERVER, &myip, dns_found_cb);
+      if (SERVER_IS_IP)
+      {
+        ip_addr_t ipaddr ;
+        ipaddr.addr = ipaddr_addr(SERVER_NAME);
+
+        os_printf("Server %s IP : "IPSTR "\n", SERVER_NAME, *((uint8 *)&ipaddr.addr), *((uint8 *)&ipaddr.addr + 1), *((uint8 *)&ipaddr.addr + 2), *((uint8 *)&ipaddr.addr + 3));
+      }
+      else
+      {
+        espconn_gethostbyname( &myconn, SERVER_NAME, &myip, dns_found_cb);
+      }
 
       break;
     }
