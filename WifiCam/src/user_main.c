@@ -21,6 +21,7 @@
 struct espconn  myconn;
 ip_addr_t myip;
 esp_tcp mytcp;
+char buffer[64];
 
 
 /******************************************************************************
@@ -84,7 +85,23 @@ user_rf_cal_sector_set(void)
 void server_connected_cb( void *arg )
 {
     struct espconn *conn = arg;
-    os_printf( "Connected !\n");
+    int status;
+
+    os_sprintf( buffer, "Hello World on %s:%d\r\n",SERVER_NAME, SERVER_PORT );
+
+    os_printf( "Sending: %s\n", buffer );
+    status = espconn_send( conn, buffer, os_strlen( buffer ) );
+
+    if (!status)
+    {
+      os_printf("Data sent\n");
+    }
+    else
+    {
+      os_printf("Error while sending data: %d",status);
+    }
+
+    espconn_disconnect(conn);
 }
 
 
