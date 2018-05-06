@@ -22,7 +22,7 @@ struct espconn  myconn;
 ip_addr_t myip;
 esp_tcp mytcp;
 char buffer[256];
-char json_data[64];
+char data[64];
 
 
 /******************************************************************************
@@ -79,39 +79,71 @@ user_rf_cal_sector_set(void)
 
 /*********************************************
  *
+ * Send  Callbacks
+ *
+ *********************************************/
+
+void server_sent_cb( void *arg )
+{
+    struct espconn *conn = (struct espconn *)arg;
+    int status;
+
+    os_sprintf( data, "abcdefghi-abcdefghi-abcdefghi-abcdefghi-abcdefghi-abcdefghi-000-" );
+    //os_sprintf( buffer, "POST %s HTTP/1.1\r\nHost: %s\r\nConnection: close\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", "/esp/toto.txt", SERVER_NAME, os_strlen(data), data );
+    status = espconn_send(conn, data, os_strlen(data) );
+
+    if (!status)
+    {
+      os_printf("Data buffered and sent\n");
+    }
+    else
+    {
+      os_printf("Error while sending data: %d\n",status);
+    }
+
+    espconn_disconnect(conn);
+
+}
+
+
+/*********************************************
+ *
  * TCP Connection Callbacks
  *
  *********************************************/
 
 void server_connected_cb( void *arg )
 {
-    struct espconn *conn = arg;
+    struct espconn *conn = (struct espconn *)arg;
     int status;
 
-    os_sprintf( json_data, "{\"temperature\": \"%d\" }", 55 );
-    os_sprintf( buffer, "POST %s HTTP/1.1\r\nHost: %s\r\nConnection: close\r\nContent-Type: application/json\r\nContent-Length: %d\r\n\r\n%s", "/esp/toto.txt", SERVER_NAME, os_strlen( json_data ), json_data );
+    os_sprintf( data, "123456789-123456789-123456789-123456789-123456789-123456789-000-" );
+    //os_sprintf( buffer, "POST %s HTTP/1.1\r\nHost: %s\r\nConnection: close\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", "/esp/toto.txt", SERVER_NAME, os_strlen(data), data );
+    espconn_regist_sentcb(conn, server_sent_cb);
+    status = espconn_send(conn, data, os_strlen(data) );
 
+    // os_sprintf( data, "abcdefghi");//-abcdefghi-abcdefghi-abcdefghi-abcdefghi-abcdefghi-000-" );
+    // os_sprintf( buffer, "POST %s HTTP/1.1\r\nHost: %s\r\nConnection: close\r\nContent-Type: application/json\r\nContent-Length: %d\r\n\r\n%s", "/esp/toto.txt", SERVER_NAME, os_strlen(data), data );
+    // status = espconn_send( conn, (uint8*)buffer, os_strlen( buffer ) );
 
-    status = espconn_send( conn, buffer, os_strlen( buffer ) );
 
     if (!status)
     {
-      os_printf("Data sent\n");
+      os_printf("Data buffered\n");
     }
     else
     {
-      os_printf("Error while sending data: %d",status);
+      os_printf("Error while sending data: %d\n",status);
     }
 
-    espconn_disconnect(conn);
 }
 
 
 void server_disconnected_cb( void *arg )
 {
-    struct espconn *conn = arg;
+    struct espconn *conn = (struct espconn *)arg;
     os_printf( "Disonnected !\n");
-    wifi_station_disconnect();
+    //wifi_station_disconnect();
 }
 
 
