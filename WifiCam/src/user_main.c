@@ -104,6 +104,7 @@ void server_sent_cb( void *arg )
 {
     struct espconn *conn = (struct espconn *)arg;
 
+    /* Remove sent item from linked list */
     if (send_head->next != send_head)
     {
       send_queue_t *q;
@@ -122,7 +123,7 @@ void server_sent_cb( void *arg )
     }
 
 
-
+    /* We can now send next data - rearm timer */
     os_timer_arm(&timer_sent, 100, 1);
 
 }
@@ -141,6 +142,7 @@ void server_send_cb(void *parg)
 
   if (send_head != NULL)
   {
+    /* Callback will rearm the timer */
     os_timer_disarm(&timer_sent);
 
     espconn_regist_sentcb(conn, server_sent_cb);
@@ -160,6 +162,7 @@ void server_send_cb(void *parg)
  {
     send_queue_t *q;
 
+    /* Create a new queue item */
     q = (send_queue_t*)os_malloc(sizeof(send_queue_t));
     if (q == NULL)
     {
@@ -170,7 +173,7 @@ void server_send_cb(void *parg)
     q->data = data;
     q->len = len;
 
-
+    /* Add it to the double linked list */
     if (send_head == NULL)
     {
       send_head = q;
@@ -198,21 +201,18 @@ void server_connected_cb( void *arg )
 {
     struct espconn *conn = (struct espconn *)arg;
 
-
+    /* Set up a timer for sending data */
     os_timer_disarm(&timer_sent);
     os_timer_setfn(&timer_sent, (os_timer_func_t *)server_send_cb, conn);
     os_timer_arm(&timer_sent, 100, 1);
 
 
-    os_sprintf( buffer, "POST %s HTTP/1.1\r\nHost: %s\r\nConnection: close\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n", "/esp/toto.txt", SERVER_NAME, 20);
+    os_sprintf( buffer, "POST %s HTTP/1.1\r\nHost: %s\r\nConnection: close\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n", "/esp/toto.txt", SERVER_NAME, 30);
+    /* Enqueue data to send */
     send_enqueue(buffer,strlen(buffer));
     send_enqueue("1234567890",10);
     send_enqueue("abcdefghij",10);
-
-    // os_sprintf( data, "abcdefghi");//-abcdefghi-abcdefghi-abcdefghi-abcdefghi-abcdefghi-000-" );
-    // os_sprintf( buffer, "POST %s HTTP/1.1\r\nHost: %s\r\nConnection: close\r\nContent-Type: application/json\r\nContent-Length: %d\r\n\r\n%s", "/esp/toto.txt", SERVER_NAME, os_strlen(data), data );
-    // status = espconn_send( conn, (uint8*)buffer, os_strlen( buffer ) );
-
+    send_enqueue("\n1\n2\n3\n4\n5",10);
 }
 
 
