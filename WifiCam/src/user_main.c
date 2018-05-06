@@ -10,6 +10,7 @@
 
 #define SERVER_NAME  "192.168.188.153"
 #define SERVER_IS_IP 1
+#define SERVER_PORT  5000
 
 /*********************************************
  *
@@ -19,7 +20,7 @@
 
 struct espconn  myconn;
 ip_addr_t myip;
-
+esp_tcp mytcp;
 
 
 /******************************************************************************
@@ -76,6 +77,52 @@ user_rf_cal_sector_set(void)
 
 /*********************************************
  *
+ * TCP Connection Callbacks
+ *
+ *********************************************/
+
+void server_connected_cb( void *arg )
+{
+    struct espconn *conn = arg;
+    os_printf( "Connected !\n");
+}
+
+
+void server_disconnected_cb( void *arg )
+{
+    struct espconn *conn = arg;
+    os_printf( "Disonnected !\n");
+    wifi_station_disconnect();
+}
+
+
+/*********************************************
+ *
+ * TCP Connection
+ *
+ *********************************************/
+
+
+void ICACHE_FLASH_ATTR  server_connect(struct espconn *conn, ip_addr_t* ipaddr, int port)
+{
+  os_printf("Connecting to " IPSTR ":%d\n", *((uint8 *)&ipaddr->addr), *((uint8 *)&ipaddr->addr + 1), *((uint8 *)&ipaddr->addr + 2), *((uint8 *)&ipaddr->addr + 3), port);
+
+  conn->type = ESPCONN_TCP;
+  conn->state = ESPCONN_NONE;
+  conn->proto.tcp=&mytcp;
+  conn->proto.tcp->local_port = espconn_port();
+  conn->proto.tcp->remote_port = port;
+  os_memcpy( conn->proto.tcp->remote_ip, &ipaddr->addr, 4 );
+
+  espconn_regist_connectcb( conn, server_connected_cb );
+  espconn_regist_disconcb( conn, server_disconnected_cb );
+
+  espconn_connect( conn );
+ }
+
+
+/*********************************************
+ *
  * DNS found Callback
  *
  *********************************************/
@@ -86,7 +133,8 @@ LOCAL void ICACHE_FLASH_ATTR dns_found_cb(const char *name, ip_addr_t *ipaddr, v
 
     if (ipaddr != NULL)
     {
-      os_printf("Server %s IP : " IPSTR "\n", name, *((uint8 *)&ipaddr->addr), *((uint8 *)&ipaddr->addr + 1), *((uint8 *)&ipaddr->addr + 2), *((uint8 *)&ipaddr->addr + 3));
+      // os_printf("Server %s IP : " IPSTR "\n", name, *((uint8 *)&ipaddr->addr), *((uint8 *)&ipaddr->addr + 1), *((uint8 *)&ipaddr->addr + 2), *((uint8 *)&ipaddr->addr + 3));
+      server_connect(conn, ipaddr, SERVER_PORT);
     }
     else
     {
@@ -124,7 +172,7 @@ void wifi_handle_event_cb(System_Event_t *evt)
 
     case EVENT_STAMODE_AUTHMODE_CHANGE:
     {
-      os_printf("mode: %d -> %d\n", evt->event_info.auth_change.old_mode, evt->event_info.auth_change.new_mode);
+      // os_printf("mode: %d -> %d\n", evt->event_info.auth_change.old_mode, evt->event_info.auth_change.new_mode);
       break;
     }
 
@@ -133,16 +181,18 @@ void wifi_handle_event_cb(System_Event_t *evt)
       os_printf("ip:" IPSTR ",mask:" IPSTR ",gw:" IPSTR, IP2STR(&evt->event_info.got_ip.ip), IP2STR(&evt->event_info.got_ip.mask), IP2STR(&evt->event_info.got_ip.gw));
       os_printf("\n");
 
-      /* Resolve Server Name */
+
       if (SERVER_IS_IP)
       {
-        ip_addr_t ipaddr ;
-        ipaddr.addr = ipaddr_addr(SERVER_NAME);
+        /* Get IP */
+        myip.addr = ipaddr_addr(SERVER_NAME);
 
-        os_printf("Server %s IP : "IPSTR "\n", SERVER_NAME, *((uint8 *)&ipaddr.addr), *((uint8 *)&ipaddr.addr + 1), *((uint8 *)&ipaddr.addr + 2), *((uint8 *)&ipaddr.addr + 3));
+        // os_printf("Server %s IP : "IPSTR "\n", SERVER_NAME, *((uint8 *)&myip.addr), *((uint8 *)&myip.addr + 1), *((uint8 *)&myip.addr + 2), *((uint8 *)&myip.addr + 3));
+        server_connect(&myconn, &myip, SERVER_PORT);
       }
       else
       {
+        /* Resolve Server Name */
         espconn_gethostbyname( &myconn, SERVER_NAME, &myip, dns_found_cb);
       }
 
@@ -175,12 +225,12 @@ void ICACHE_FLASH_ATTR user_init(void)
     gpio_init();
 
     uart_init(115200, 115200);
-    os_printf("======\n");
-    os_printf("SDK version:%s\n", system_get_sdk_version());
-    os_printf("Chip ID:%d\n", system_get_chip_id());
-    os_printf("CPU freq : %d MHz\n", system_get_cpu_freq());
-    os_printf("Memory Map:\n");
-    system_print_meminfo();
+    // os_printf("======\n");
+    // os_printf("SDK version:%s\n", system_get_sdk_version());
+    // os_printf("Chip ID:%d\n", system_get_chip_id());
+    // os_printf("CPU freq : %d MHz\n", system_get_cpu_freq());
+    // os_printf("Memory Map:\n");
+    // system_print_meminfo();
 
     /* STA Mode */
     wifi_set_opmode(STATION_MODE);
