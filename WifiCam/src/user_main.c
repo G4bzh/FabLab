@@ -21,7 +21,8 @@
 struct espconn  myconn;
 ip_addr_t myip;
 esp_tcp mytcp;
-char buffer[64];
+char buffer[256];
+char json_data[64];
 
 
 /******************************************************************************
@@ -87,9 +88,10 @@ void server_connected_cb( void *arg )
     struct espconn *conn = arg;
     int status;
 
-    os_sprintf( buffer, "Hello World on %s:%d\r\n",SERVER_NAME, SERVER_PORT );
+    os_sprintf( json_data, "{\"temperature\": \"%d\" }", 55 );
+    os_sprintf( buffer, "POST %s HTTP/1.1\r\nHost: %s\r\nConnection: close\r\nContent-Type: application/json\r\nContent-Length: %d\r\n\r\n%s", "/esp/toto.txt", SERVER_NAME, os_strlen( json_data ), json_data );
 
-    os_printf( "Sending: %s\n", buffer );
+
     status = espconn_send( conn, buffer, os_strlen( buffer ) );
 
     if (!status)
