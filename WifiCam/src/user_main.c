@@ -40,7 +40,7 @@ ip_addr_t myip;
 esp_tcp mytcp;
 os_timer_t timer_sent;
 send_queue_t *send_head = NULL;
-
+char buffer[256];
 
 /******************************************************************************
  * FunctionName : user_rf_cal_sector_set
@@ -204,10 +204,10 @@ void server_connected_cb( void *arg )
     os_timer_arm(&timer_sent, 100, 1);
 
 
+    os_sprintf( buffer, "POST %s HTTP/1.1\r\nHost: %s\r\nConnection: close\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n", "/esp/toto.txt", SERVER_NAME, 20);
+    send_enqueue(buffer,strlen(buffer));
     send_enqueue("1234567890",10);
     send_enqueue("abcdefghij",10);
-      //os_sprintf( buffer, "POST %s HTTP/1.1\r\nHost: %s\r\nConnection: close\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", "/esp/toto.txt", SERVER_NAME, os_strlen(data), data );
-
 
     // os_sprintf( data, "abcdefghi");//-abcdefghi-abcdefghi-abcdefghi-abcdefghi-abcdefghi-000-" );
     // os_sprintf( buffer, "POST %s HTTP/1.1\r\nHost: %s\r\nConnection: close\r\nContent-Type: application/json\r\nContent-Length: %d\r\n\r\n%s", "/esp/toto.txt", SERVER_NAME, os_strlen(data), data );
