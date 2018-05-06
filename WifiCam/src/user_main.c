@@ -24,6 +24,9 @@ esp_tcp mytcp;
 char buffer[256];
 char data[64];
 
+os_timer_t timer_sent;
+int mtx_sent;
+
 
 /******************************************************************************
  * FunctionName : user_rf_cal_sector_set
@@ -86,23 +89,22 @@ user_rf_cal_sector_set(void)
 void server_sent_cb( void *arg )
 {
     struct espconn *conn = (struct espconn *)arg;
-    int status;
 
-    os_sprintf( data, "abcdefghi-abcdefghi-abcdefghi-abcdefghi-abcdefghi-abcdefghi-000-" );
-    //os_sprintf( buffer, "POST %s HTTP/1.1\r\nHost: %s\r\nConnection: close\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", "/esp/toto.txt", SERVER_NAME, os_strlen(data), data );
-    status = espconn_send(conn, data, os_strlen(data) );
+    mtx_sent = 0;
 
-    if (!status)
-    {
-      os_printf("Data buffered and sent\n");
-    }
-    else
-    {
-      os_printf("Error while sending data: %d\n",status);
-    }
+}
 
-    espconn_disconnect(conn);
 
+void server_send(void *parg)
+{
+  struct espconn *conn = (struct espconn *)parg;
+
+  if (!mtx_sent)
+  {
+    mtx_sent = 1;
+    espconn_regist_sentcb(conn, server_sent_cb);
+    espconn_send(conn, data, os_strlen(data) );
+  }
 }
 
 
@@ -115,26 +117,23 @@ void server_sent_cb( void *arg )
 void server_connected_cb( void *arg )
 {
     struct espconn *conn = (struct espconn *)arg;
-    int status;
+    int i, status;
+
+
 
     os_sprintf( data, "123456789-123456789-123456789-123456789-123456789-123456789-000-" );
-    //os_sprintf( buffer, "POST %s HTTP/1.1\r\nHost: %s\r\nConnection: close\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", "/esp/toto.txt", SERVER_NAME, os_strlen(data), data );
-    espconn_regist_sentcb(conn, server_sent_cb);
-    status = espconn_send(conn, data, os_strlen(data) );
+    mtx_sent = 0;
+
+    os_timer_disarm(&timer_sent);
+    os_timer_setfn(&timer_sent, (os_timer_func_t *)server_send, conn);
+    os_timer_arm(&timer_sent, 100, 1);
+
+      //os_sprintf( buffer, "POST %s HTTP/1.1\r\nHost: %s\r\nConnection: close\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", "/esp/toto.txt", SERVER_NAME, os_strlen(data), data );
+
 
     // os_sprintf( data, "abcdefghi");//-abcdefghi-abcdefghi-abcdefghi-abcdefghi-abcdefghi-000-" );
     // os_sprintf( buffer, "POST %s HTTP/1.1\r\nHost: %s\r\nConnection: close\r\nContent-Type: application/json\r\nContent-Length: %d\r\n\r\n%s", "/esp/toto.txt", SERVER_NAME, os_strlen(data), data );
     // status = espconn_send( conn, (uint8*)buffer, os_strlen( buffer ) );
-
-
-    if (!status)
-    {
-      os_printf("Data buffered\n");
-    }
-    else
-    {
-      os_printf("Error while sending data: %d\n",status);
-    }
 
 }
 
