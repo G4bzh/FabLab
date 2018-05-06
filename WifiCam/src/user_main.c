@@ -1,5 +1,25 @@
 #include "osapi.h"
 #include "user_interface.h"
+#include "espconn.h"
+
+/*********************************************
+ *
+ * Constants
+ *
+ *********************************************/
+
+#define SERVER  "www.google.com"
+
+
+/*********************************************
+ *
+ * Global variables
+ *
+ *********************************************/
+
+struct espconn  myconn;
+ip_addr_t myip;
+
 
 
 /******************************************************************************
@@ -54,61 +74,113 @@ user_rf_cal_sector_set(void)
 }
 
 
+/*********************************************
+ *
+ * DNS found Callback
+ *
+ *********************************************/
 
+LOCAL void ICACHE_FLASH_ATTR dns_found_cb(const char *name, ip_addr_t *ipaddr, void  *arg)
+{
+    struct espconn *conn = (struct espconn *)arg;
 
-static	void	ICACHE_FLASH_ATTR	scan_done(void	*arg,	STATUS	status)	{
-
-  uint8 ssid[33];
-  char temp[128];
-
-  if (status == OK)
-  {
-    struct bss_info *bss_link = (struct bss_info *)arg;
-
-    while (bss_link != NULL)
+    if (ipaddr != NULL)
     {
-      os_memset(ssid, 0, 33);
+      os_printf("Server %s IP : %d.%d.%d.%d\n", name, *((uint8 *)&ipaddr->addr), *((uint8 *)&ipaddr->addr + 1), *((uint8 *)&ipaddr->addr + 2), *((uint8 *)&ipaddr->addr + 3));
+    }
+}
 
-      if (os_strlen(bss_link->ssid) <= 32)
-      {
-        os_memcpy(ssid, bss_link->ssid, os_strlen(bss_link->ssid));
-      }
-      else
-      {
-        os_memcpy(ssid, bss_link->ssid, 32);
-      }
 
-      os_printf("(%d,\"%s\",%d,\""MACSTR"\",%d)\r\n", bss_link->authmode, ssid, bss_link->rssi, MAC2STR(bss_link->bssid),bss_link->channel);
 
-      bss_link = bss_link->next.stqe_next;
+
+/*********************************************
+ *
+ * Wifi Event Handler
+ *
+ *********************************************/
+
+void wifi_handle_event_cb(System_Event_t *evt)
+{
+  os_printf("event %x\n", evt->event);
+
+  switch (evt->event) {
+
+    case EVENT_STAMODE_CONNECTED:
+    {
+      os_printf("connect to ssid %s, channel %d\n", evt->event_info.connected.ssid, evt->event_info.connected.channel);
+      break;
     }
 
-    os_printf("scan ok \r\n");
+    case EVENT_STAMODE_DISCONNECTED:
+    {
+      os_printf("disconnect from ssid %s, reason %d\n", evt->event_info.disconnected.ssid, evt->event_info.disconnected.reason);
+      break;
+    }
+
+    case EVENT_STAMODE_AUTHMODE_CHANGE:
+    {
+      os_printf("mode: %d -> %d\n", evt->event_info.auth_change.old_mode, evt->event_info.auth_change.new_mode);
+      break;
+    }
+
+    case EVENT_STAMODE_GOT_IP:
+    {
+      os_printf("ip:" IPSTR ",mask:" IPSTR ",gw:" IPSTR, IP2STR(&evt->event_info.got_ip.ip), IP2STR(&evt->event_info.got_ip.mask), IP2STR(&evt->event_info.got_ip.gw));
+      os_printf("\n");
+
+      /* Resolve Server Name */
+      espconn_gethostbyname( &myconn, SERVER, &myip, dns_found_cb);
+
+      break;
+    }
+
+    default:
+      break;
   }
-  else
-  {
-    os_printf("scan fail !!!\r\n");
-  }
+
+  return;
+
 }
 
 
-
-void scanny(void* arg)
-{
-    wifi_station_disconnect();
-    wifi_station_scan(NULL,	scan_done);
-}
-
+/*********************************************
+ *
+ * User Init
+ *
+ *********************************************/
 
 void ICACHE_FLASH_ATTR user_init(void)
 {
+
+  char ssid[32] = "Backoffice";
+  char password[64] = "back4cyim";
+  struct station_config stationConf;
+
+
     gpio_init();
 
     uart_init(115200, 115200);
+    os_printf("======\n");
     os_printf("SDK version:%s\n", system_get_sdk_version());
+    os_printf("Chip ID:%d\n", system_get_chip_id());
+    os_printf("CPU freq : %d MHz\n", system_get_cpu_freq());
+    os_printf("Memory Map:\n");
+    system_print_meminfo();
 
-    // STA Mode
+    /* STA Mode */
     wifi_set_opmode(STATION_MODE);
 
-    system_init_done_cb(scanny);
+    /* Mandatory */
+    stationConf.bssid_set = 0;
+
+    /* Fill config */
+    os_memcpy(&stationConf.ssid, ssid, 32);
+    os_memcpy(&stationConf.password, password, 64);
+
+    /* Set config
+     * Because we are in user_init, no need to call wifi_staion_connect()
+     */
+    wifi_station_set_config(&stationConf);
+
+    wifi_set_event_handler_cb(wifi_handle_event_cb);
 }
