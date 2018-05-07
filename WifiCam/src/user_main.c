@@ -41,6 +41,8 @@ esp_tcp mytcp;
 os_timer_t timer_sent;
 send_queue_t *send_head = NULL;
 char buffer[256];
+uint8 mtx_send;
+
 
 /******************************************************************************
  * FunctionName : user_rf_cal_sector_set
@@ -140,6 +142,12 @@ void server_send_cb(void *parg)
 {
   struct espconn *conn = (struct espconn *)parg;
 
+  /* Do nothing if mutex set */
+  if (mtx_send)
+  {
+    return;
+  }
+
   if (send_head != NULL)
   {
     /* Callback will rearm the timer */
@@ -173,6 +181,9 @@ void server_send_cb(void *parg)
     q->data = data;
     q->len = len;
 
+    /* Set mutex */
+    mtx_send = 1;
+
     /* Add it to the double linked list */
     if (send_head == NULL)
     {
@@ -188,6 +199,10 @@ void server_send_cb(void *parg)
       send_head->prev = q;
 
     }
+
+    /* Release mutex */
+    mtx_send = 0;
+
  }
 
 
